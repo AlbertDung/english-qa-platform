@@ -1,49 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Question, Answer, User } from '../types';
+import { Question, Answer } from '../types';
 import { questionService } from '../services/questionService';
 import { answerService } from '../services/answerService';
 import { voteService } from '../services/voteService';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import AnswerCard from '../components/AnswerCard';
 import LoadingSpinner from '../components/LoadingSpinner';
+import EnhancedFileUpload from '../components/EnhancedFileUpload';
+import { SaveButton } from '../components/SaveButton';
 
 const QuestionDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
+  const { addToast } = useToast();
   
   const [question, setQuestion] = useState<Question | null>(null);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [answersLoading, setAnswersLoading] = useState(false);
   const [error, setError] = useState('');
   const [newAnswer, setNewAnswer] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [answerAttachments, setAnswerAttachments] = useState<any[]>([]);
 
   useEffect(() => {
+    const fetchQuestionAndAnswers = async () => {
+      try {
+        setLoading(true);
+        const [questionResponse, answersResponse] = await Promise.all([
+          questionService.getQuestion(id!),
+          answerService.getAnswersByQuestion(id!)
+        ]);
+        
+        setQuestion(questionResponse.question);
+        setAnswers(answersResponse.answers);
+      } catch (error: any) {
+        setError('Failed to fetch question details');
+        if (error.response?.status === 404) {
+          navigate('/404');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (id) {
       fetchQuestionAndAnswers();
     }
-  }, [id]);
+  }, [id, navigate]);
 
-  const fetchQuestionAndAnswers = async () => {
+  const refreshData = async () => {
+    if (!id) return;
     try {
-      setLoading(true);
       const [questionResponse, answersResponse] = await Promise.all([
-        questionService.getQuestion(id!),
-        answerService.getAnswersByQuestion(id!)
+        questionService.getQuestion(id),
+        answerService.getAnswersByQuestion(id)
       ]);
       
       setQuestion(questionResponse.question);
       setAnswers(answersResponse.answers);
     } catch (error: any) {
-      setError('Failed to fetch question details');
-      if (error.response?.status === 404) {
-        navigate('/404');
-      }
-    } finally {
-      setLoading(false);
+      console.error('Failed to refresh data:', error);
     }
   };
 
@@ -54,22 +73,30 @@ const QuestionDetailPage: React.FC = () => {
     }
 
     try {
-      await voteService.vote({
+      const result = await voteService.vote({
         targetType,
         targetId,
         voteType: type
       });
 
-      // Refresh data to show updated vote counts
+      if (result.alreadyVoted) {
+        // Show notification that user already voted
+        addToast(result.message || 'You have already voted on this item', 'warning');
+        return;
+      }
+
+      // Vote was successful, refresh data to show updated vote counts
       if (targetType === 'question') {
         const response = await questionService.getQuestion(id!);
         setQuestion(response.question);
       } else {
-        const response = await answerService.getAnswersByQuestion(id!);
-        setAnswers(response.answers);
+        await refreshData();
       }
+
+      addToast(`Vote ${type} successfully recorded!`, 'success');
     } catch (error: any) {
       console.error('Vote failed:', error);
+      addToast('Failed to record vote. Please try again.', 'error');
     }
   };
 
@@ -87,18 +114,36 @@ const QuestionDetailPage: React.FC = () => {
 
     try {
       setSubmitting(true);
-      await answerService.createAnswer({
+      
+      // Prepare answer data with attachments
+      const answerData: any = {
         questionId: id!,
         content: newAnswer.trim()
-      });
+      };
+
+      // Add attachments if any
+      if (answerAttachments.length > 0) {
+        answerData.attachments = answerAttachments.map(att => ({
+          url: att.url,
+          publicId: att.publicId,
+          filename: att.filename,
+          originalName: att.originalName,
+          fileType: att.fileType,
+          size: att.size
+        }));
+      }
+
+      await answerService.createAnswer(answerData);
 
       setNewAnswer('');
+      setAnswerAttachments([]); // Clear attachments
       
       // Refresh answers
-      const response = await answerService.getAnswersByQuestion(id!);
-      setAnswers(response.answers);
+      await refreshData();
+      addToast('Answer submitted successfully!', 'success');
     } catch (error: any) {
       setError('Failed to submit answer');
+      addToast('Failed to submit answer', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -112,11 +157,12 @@ const QuestionDetailPage: React.FC = () => {
     try {
       await answerService.acceptAnswer(answerId);
       
-      // Refresh answers to show updated acceptance status
-      const response = await answerService.getAnswersByQuestion(id!);
-      setAnswers(response.answers);
+      // Refresh data to show updated acceptance status
+      await refreshData();
+      addToast('Answer accepted successfully!', 'success');
     } catch (error: any) {
       console.error('Failed to accept answer:', error);
+      addToast('Failed to accept answer', 'error');
     }
   };
 
@@ -237,6 +283,14 @@ const QuestionDetailPage: React.FC = () => {
           <div className="flex items-center space-x-4">
             <span>{answers.length} answers</span>
             <span>{question.views} views</span>
+            {isAuthenticated && (
+              <SaveButton 
+                contentId={question._id} 
+                contentType="question" 
+                showText={true}
+                className="text-blue-600 hover:text-blue-800"
+              />
+            )}
           </div>
         </div>
       </div>
@@ -272,8 +326,8 @@ const QuestionDetailPage: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Your Answer</h3>
           
-          <form onSubmit={handleSubmitAnswer}>
-            <div className="mb-4">
+          <form onSubmit={handleSubmitAnswer} className="space-y-6">
+            <div>
               <textarea
                 value={newAnswer}
                 onChange={(e) => setNewAnswer(e.target.value)}
@@ -283,6 +337,14 @@ const QuestionDetailPage: React.FC = () => {
                 required
               />
             </div>
+
+            {/* File Upload Section */}
+            <EnhancedFileUpload
+              onFilesChange={setAnswerAttachments}
+              context="answer"
+              maxFiles={3}
+              className="border-t pt-4"
+            />
             
             <div className="flex justify-end">
               <button
