@@ -5,7 +5,9 @@ import {
   getQuestion,
   updateQuestion,
   deleteQuestion,
-  getQuestionAnswers
+  getQuestionAnswers,
+  getQuestionEditHistory,
+  bulkDeleteQuestions
 } from '../controllers/questionController';
 import { 
   createAnswer,
@@ -21,10 +23,18 @@ router.route('/')
   .get(getQuestions)
   .post(authenticate, createQuestion);
 
+// Bulk operations
+router.route('/bulk/delete')
+  .post(authenticate, bulkDeleteQuestions);
+
 router.route('/:id')
   .get(getQuestion)
   .put(authenticate, updateQuestion)
   .delete(authenticate, deleteQuestion);
+
+// Edit history
+router.route('/:id/edit-history')
+  .get(getQuestionEditHistory);
 
 // Nested answer routes
 router.route('/:id/answers')
