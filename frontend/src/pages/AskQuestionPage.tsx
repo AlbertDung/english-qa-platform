@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import EnhancedFileUpload from '../components/EnhancedFileUpload';
 import { 
   QuestionMarkCircleIcon,
+  QueueListIcon,
   DocumentTextIcon,
   TagIcon,
   SparklesIcon,
@@ -13,7 +14,18 @@ import {
   CheckCircleIcon,
   XMarkIcon,
   ArrowLeftIcon,
-  PaperClipIcon
+  PaperClipIcon,
+  PencilIcon,
+  SpeakerWaveIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  EyeIcon,
+  MusicalNoteIcon,
+  LanguageIcon,
+  BeakerIcon,
+  AdjustmentsVerticalIcon,
+  FireIcon,
+  BookOpenIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 
 const AskQuestionPage: React.FC = () => {
@@ -50,24 +62,24 @@ const AskQuestionPage: React.FC = () => {
   }, [isAuthenticated, navigate]);
 
   const categories = [
-    { value: 'grammar', label: 'Grammar', emoji: '📝', description: 'Sentence structure, tenses, parts of speech' },
-    { value: 'vocabulary', label: 'Vocabulary', emoji: '📖', description: 'Word meanings, synonyms, usage' },
-    { value: 'pronunciation', label: 'Pronunciation', emoji: '🗣️', description: 'How to say words correctly' },
-    { value: 'writing', label: 'Writing', emoji: '✍️', description: 'Essays, emails, creative writing' },
-    { value: 'speaking', label: 'Speaking', emoji: '💬', description: 'Conversation, presentations, fluency' },
-    { value: 'reading', label: 'Reading', emoji: '📚', description: 'Comprehension, literature, analysis' },
-    { value: 'listening', label: 'Listening', emoji: '👂', description: 'Understanding audio, accents' },
-    { value: 'other', label: 'Other', emoji: '🔤', description: 'General English questions' }
+    { value: 'grammar', label: 'Grammar', icon: PencilIcon, description: 'Sentence structure, tenses, parts of speech' },
+    { value: 'vocabulary', label: 'Vocabulary', icon: BookOpenIcon, description: 'Word meanings, synonyms, usage' },
+    { value: 'pronunciation', label: 'Pronunciation', icon: SpeakerWaveIcon, description: 'How to say words correctly' },
+    { value: 'writing', label: 'Writing', icon: PencilIcon, description: 'Essays, emails, creative writing' },
+    { value: 'speaking', label: 'Speaking', icon: ChatBubbleOvalLeftEllipsisIcon, description: 'Conversation, presentations, fluency' },
+    { value: 'reading', label: 'Reading', icon: EyeIcon, description: 'Comprehension, literature, analysis' },
+    { value: 'listening', label: 'Listening', icon: MusicalNoteIcon, description: 'Understanding audio, accents' },
+    { value: 'other', label: 'Other', icon: LanguageIcon, description: 'General English questions' }
   ];
 
   const difficulties = [
-    { value: 'beginner', label: 'Beginner', emoji: '🌱', description: 'Just starting to learn English' },
-    { value: 'intermediate', label: 'Intermediate', emoji: '🌿', description: 'Can handle everyday conversations' },
-    { value: 'advanced', label: 'Advanced', emoji: '🌳', description: 'Fluent with complex topics' }
+    { value: 'beginner', label: 'Beginner', icon: BeakerIcon, description: 'Just starting to learn English' },
+    { value: 'intermediate', label: 'Intermediate', icon: AdjustmentsVerticalIcon, description: 'Can handle everyday conversations' },
+    { value: 'advanced', label: 'Advanced', icon: FireIcon, description: 'Fluent with complex topics' }
   ];
 
   const steps = [
-    { title: 'Question Title', icon: QuestionMarkCircleIcon },
+    { title: 'Question Title', icon: QueueListIcon },
     { title: 'Details', icon: DocumentTextIcon },
     { title: 'Attachments', icon: PaperClipIcon },
     { title: 'Category & Level', icon: TagIcon },
@@ -237,7 +249,7 @@ const AskQuestionPage: React.FC = () => {
                   <div className="space-y-6 animate-fade-in">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <QuestionMarkCircleIcon className="w-8 h-8 text-white" />
+                        <QueueListIcon className="w-8 h-8 text-white" />
                       </div>
                       <h2 className="text-2xl font-display font-bold text-neutral-900 mb-2">
                         What's your question?
@@ -398,7 +410,9 @@ const AskQuestionPage: React.FC = () => {
                             }`}
                           >
                             <div className="flex items-center space-x-3 mb-2">
-                              <span className="text-2xl">{category.emoji}</span>
+                              <div className="p-2 bg-primary-100 rounded-lg">
+                                <category.icon className="w-6 h-6 text-primary-600" />
+                              </div>
                               <span className="font-semibold text-neutral-900">{category.label}</span>
                             </div>
                             <p className="text-xs text-neutral-600">{category.description}</p>
@@ -422,7 +436,11 @@ const AskQuestionPage: React.FC = () => {
                                 : 'border-neutral-200 hover:border-neutral-300 bg-white'
                             }`}
                           >
-                            <div className="text-2xl mb-2">{difficulty.emoji}</div>
+                            <div className="flex justify-center mb-2">
+                              <div className="p-3 bg-secondary-100 rounded-xl">
+                                <difficulty.icon className="w-8 h-8 text-secondary-600" />
+                              </div>
+                            </div>
                             <div className="font-semibold text-neutral-900 mb-1">{difficulty.label}</div>
                             <p className="text-xs text-neutral-600">{difficulty.description}</p>
                           </button>
@@ -489,9 +507,13 @@ const AskQuestionPage: React.FC = () => {
                             <div className="bg-white rounded-xl p-4 border border-neutral-200 space-y-2">
                               {formData.attachments.map((attachment, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                                  <span className="text-lg">
-                                    {attachment.fileType === 'image' ? '🖼️' : '🎵'}
-                                  </span>
+                                  <div className="flex justify-center">
+                                    {attachment.fileType === 'image' ? (
+                                      <PhotoIcon className="w-5 h-5 text-blue-500" />
+                                    ) : (
+                                      <MusicalNoteIcon className="w-5 h-5 text-purple-500" />
+                                    )}
+                                  </div>
                                   <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">{attachment.originalName}</p>
                                     <p className="text-xs text-gray-500">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>

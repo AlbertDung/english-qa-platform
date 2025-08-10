@@ -11,7 +11,18 @@ import {
   BookOpenIcon,
   ChatBubbleLeftRightIcon,
   AcademicCapIcon,
-  SparklesIcon
+  SparklesIcon,
+  PencilIcon,
+  DocumentTextIcon,
+  SpeakerWaveIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  EyeIcon,
+  MusicalNoteIcon,
+  LanguageIcon,
+  BeakerIcon,
+  AdjustmentsVerticalIcon,
+  FireIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 
 const HomePage: React.FC = () => {
@@ -69,20 +80,20 @@ const HomePage: React.FC = () => {
   };
 
   const categories = [
-    { value: 'grammar', label: 'Grammar', emoji: '📝', color: 'from-blue-400 to-blue-600' },
-    { value: 'vocabulary', label: 'Vocabulary', emoji: '📖', color: 'from-purple-400 to-purple-600' },
-    { value: 'pronunciation', label: 'Pronunciation', emoji: '🗣️', color: 'from-pink-400 to-pink-600' },
-    { value: 'writing', label: 'Writing', emoji: '✍️', color: 'from-indigo-400 to-indigo-600' },
-    { value: 'speaking', label: 'Speaking', emoji: '💬', color: 'from-orange-400 to-orange-600' },
-    { value: 'reading', label: 'Reading', emoji: '📚', color: 'from-green-400 to-green-600' },
-    { value: 'listening', label: 'Listening', emoji: '👂', color: 'from-yellow-400 to-yellow-600' },
-    { value: 'other', label: 'Other', emoji: '🔤', color: 'from-gray-400 to-gray-600' }
+    { value: 'grammar', label: 'Grammar', icon: PencilIcon, color: 'from-blue-400 to-blue-600' },
+    { value: 'vocabulary', label: 'Vocabulary', icon: DocumentTextIcon, color: 'from-purple-400 to-purple-600' },
+    { value: 'pronunciation', label: 'Pronunciation', icon: SpeakerWaveIcon, color: 'from-pink-400 to-pink-600' },
+    { value: 'writing', label: 'Writing', icon: PencilIcon, color: 'from-indigo-400 to-indigo-600' },
+    { value: 'speaking', label: 'Speaking', icon: ChatBubbleOvalLeftEllipsisIcon, color: 'from-orange-400 to-orange-600' },
+    { value: 'reading', label: 'Reading', icon: EyeIcon, color: 'from-green-400 to-green-600' },
+    { value: 'listening', label: 'Listening', icon: MusicalNoteIcon, color: 'from-yellow-400 to-yellow-600' },
+    { value: 'other', label: 'Other', icon: LanguageIcon, color: 'from-gray-400 to-gray-600' }
   ];
 
   const difficulties = [
-    { value: 'beginner', label: 'Beginner', emoji: '🌱', color: 'from-green-400 to-green-600' },
-    { value: 'intermediate', label: 'Intermediate', emoji: '🌿', color: 'from-yellow-400 to-yellow-600' },
-    { value: 'advanced', label: 'Advanced', emoji: '🌳', color: 'from-red-400 to-red-600' }
+    { value: 'beginner', label: 'Beginner', icon: BeakerIcon, color: 'from-green-400 to-green-600' },
+    { value: 'intermediate', label: 'Intermediate', icon: AdjustmentsVerticalIcon, color: 'from-yellow-400 to-yellow-600' },
+    { value: 'advanced', label: 'Advanced', icon: FireIcon, color: 'from-red-400 to-red-600' }
   ];
 
   const activeFiltersCount = Object.values(filters).filter(value => value && value !== 'newest').length;
@@ -220,7 +231,7 @@ const HomePage: React.FC = () => {
                             : 'hover:bg-neutral-50 text-neutral-700'
                         }`}
                       >
-                        <span className="text-lg">{category.emoji}</span>
+                        <category.icon className="w-5 h-5" />
                         <span className="font-medium">{category.label}</span>
                       </button>
                     ))}
@@ -251,7 +262,7 @@ const HomePage: React.FC = () => {
                             : 'hover:bg-neutral-50 text-neutral-700'
                         }`}
                       >
-                        <span className="text-lg">{difficulty.emoji}</span>
+                        <difficulty.icon className="w-5 h-5" />
                         <span className="font-medium">{difficulty.label}</span>
                       </button>
                     ))}
@@ -299,7 +310,7 @@ const HomePage: React.FC = () => {
             ) : error ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-neutral-200">
                 <div className="p-4 bg-error-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-error-600 text-2xl">⚠️</span>
+                  <ExclamationTriangleIcon className="w-8 h-8 text-error-600" />
                 </div>
                 <h3 className="text-lg font-semibold text-neutral-900 mb-2">Something went wrong</h3>
                 <p className="text-error-600 mb-6">{error}</p>

@@ -10,7 +10,9 @@ import {
   EyeSlashIcon,
   AcademicCapIcon,
   CheckCircleIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  BookOpenIcon,
+  PresentationChartLineIcon
 } from '@heroicons/react/24/outline';
 
 const Register: React.FC = () => {
@@ -164,7 +166,9 @@ const Register: React.FC = () => {
                       : 'border-neutral-200 hover:border-neutral-300 text-neutral-600'
                   }`}
                 >
-                  <div className="text-2xl mb-2">🎓</div>
+                  <div className="flex justify-center mb-2">
+                    <BookOpenIcon className="w-8 h-8 text-secondary-500" />
+                  </div>
                   <div className="font-medium">Student</div>
                   <div className="text-xs opacity-75">Learning English</div>
                 </button>
@@ -177,7 +181,9 @@ const Register: React.FC = () => {
                       : 'border-neutral-200 hover:border-neutral-300 text-neutral-600'
                   }`}
                 >
-                  <div className="text-2xl mb-2">👨‍🏫</div>
+                  <div className="flex justify-center mb-2">
+                    <PresentationChartLineIcon className="w-8 h-8 text-secondary-500" />
+                  </div>
                   <div className="font-medium">Teacher</div>
                   <div className="text-xs opacity-75">Teaching English</div>
                 </button>

@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getSavedContent, unsaveContent } from '../services/userService';
 import { SavedContent, Question, Answer } from '../types';
+import {
+  ChatBubbleLeftRightIcon,
+  LightBulbIcon
+} from '@heroicons/react/24/outline';
 
 interface SavedContentManagerProps {
   className?: string;
@@ -174,12 +178,22 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
         <div className="flex-1 min-w-0">
           {/* Type Badge */}
           <div className="flex items-center space-x-2 mb-3">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+            <span className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
               isQuestion 
                 ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
                 : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
             }`}>
-              {isQuestion ? '❓ Question' : '💡 Answer'}
+              {isQuestion ? (
+                <>
+                  <ChatBubbleLeftRightIcon className="w-3 h-3" />
+                  <span>Question</span>
+                </>
+              ) : (
+                <>
+                  <LightBulbIcon className="w-3 h-3" />
+                  <span>Answer</span>
+                </>
+              )}
             </span>
             <span className="text-xs text-gray-500 dark:text-gray-400">
               Saved {new Date(item.savedAt).toLocaleDateString()}

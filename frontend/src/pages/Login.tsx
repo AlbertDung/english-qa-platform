@@ -8,7 +8,10 @@ import {
   EyeIcon, 
   EyeSlashIcon,
   AcademicCapIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  SparklesIcon,
+  UsersIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 
 const Login: React.FC = () => {
@@ -168,15 +171,21 @@ const Login: React.FC = () => {
         {/* Features Preview */}
         <div className="mt-8 grid grid-cols-3 gap-4 text-center">
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-neutral-100">
-            <div className="text-2xl mb-2">🎯</div>
+            <div className="flex justify-center mb-2">
+              <SparklesIcon className="w-6 h-6 text-primary-500" />
+            </div>
             <p className="text-xs text-neutral-600 font-medium">Personalized Learning</p>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-neutral-100">
-            <div className="text-2xl mb-2">🤝</div>
+            <div className="flex justify-center mb-2">
+              <UsersIcon className="w-6 h-6 text-primary-500" />
+            </div>
             <p className="text-xs text-neutral-600 font-medium">Community Support</p>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 border border-neutral-100">
-            <div className="text-2xl mb-2">📈</div>
+            <div className="flex justify-center mb-2">
+              <ChartBarIcon className="w-6 h-6 text-primary-500" />
+            </div>
             <p className="text-xs text-neutral-600 font-medium">Track Progress</p>
           </div>
         </div>
