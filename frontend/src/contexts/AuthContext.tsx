@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 import { authService } from '../services/authService';
+import { updateUserProfile } from '../services/userService';
 
 interface AuthState {
   user: User | null;
@@ -14,7 +15,8 @@ type AuthAction =
   | { type: 'LOGIN_SUCCESS'; payload: { user: User; token: string } }
   | { type: 'LOGIN_FAILURE' }
   | { type: 'LOGOUT' }
-  | { type: 'LOAD_USER'; payload: User };
+  | { type: 'LOAD_USER'; payload: User }
+  | { type: 'UPDATE_USER'; payload: User };
 
 const initialState: AuthState = {
   user: null,
@@ -63,6 +65,12 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         isLoading: false,
         isAuthenticated: true,
       };
+    case 'UPDATE_USER':
+      localStorage.setItem('user', JSON.stringify(action.payload));
+      return {
+        ...state,
+        user: action.payload,
+      };
     default:
       return state;
   }
@@ -81,6 +89,10 @@ interface AuthContextType {
     role?: string;
   }) => Promise<void>;
   logout: () => void;
+  updateUser: (userData: {
+    profile?: Partial<User['profile']>;
+    preferences?: Partial<User['preferences']>;
+  }) => Promise<User | undefined>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -155,6 +167,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'LOGOUT' });
   };
 
+  const updateUser = async (userData: {
+    profile?: Partial<User['profile']>;
+    preferences?: Partial<User['preferences']>;
+  }) => {
+    if (!state.user) return;
+    
+    try {
+      const response = await updateUserProfile(
+        userData.profile || {},
+        userData.preferences || {}
+      );
+      if (response.data) {
+        dispatch({ type: 'UPDATE_USER', payload: response.data });
+        return response.data;
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const value = {
     state,
     user: state.user,
@@ -163,6 +195,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
