@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { getUserActivity } from '../services/userService';
 import { Activity } from '../types';
+import {
+  ChatBubbleLeftRightIcon,
+  LightBulbIcon,
+  HeartIcon,
+  StarIcon,
+  PencilIcon,
+  ChevronUpIcon,
+  DocumentTextIcon
+} from '@heroicons/react/24/outline';
 
 interface ActivityFeedProps {
   userId?: string;
@@ -49,22 +58,23 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
   }, [fetchActivities, filter]);
 
   const getActivityIcon = (type: string) => {
+    const iconClass = "w-5 h-5";
     switch (type) {
-      case 'question_created': return '❓';
-      case 'question_updated': return '✏️';
-      case 'question_deleted': return '🗑️';
-      case 'answer_created': return '💡';
-      case 'answer_updated': return '📝';
-      case 'answer_deleted': return '🗑️';
-      case 'question_voted': return '👍';
-      case 'answer_voted': return '👍';
-      case 'question_saved': return '❤️';
-      case 'answer_saved': return '❤️';
-      case 'question_unsaved': return '💔';
-      case 'answer_unsaved': return '💔';
-      case 'file_uploaded': return '📎';
-      case 'profile_updated': return '👤';
-      default: return '📝';
+      case 'question_created': return <ChatBubbleLeftRightIcon className={iconClass} />;
+      case 'question_updated': return <PencilIcon className={iconClass} />;
+      case 'question_deleted': return <DocumentTextIcon className={iconClass} />;
+      case 'answer_created': return <LightBulbIcon className={iconClass} />;
+      case 'answer_updated': return <PencilIcon className={iconClass} />;
+      case 'answer_deleted': return <DocumentTextIcon className={iconClass} />;
+      case 'question_voted': return <ChevronUpIcon className={iconClass} />;
+      case 'answer_voted': return <ChevronUpIcon className={iconClass} />;
+      case 'question_saved': return <HeartIcon className={iconClass} />;
+      case 'answer_saved': return <HeartIcon className={iconClass} />;
+      case 'question_unsaved': return <HeartIcon className={iconClass} />;
+      case 'answer_unsaved': return <HeartIcon className={iconClass} />;
+      case 'file_uploaded': return <DocumentTextIcon className={iconClass} />;
+      case 'profile_updated': return <StarIcon className={iconClass} />;
+      default: return <DocumentTextIcon className={iconClass} />;
     }
   };
 
