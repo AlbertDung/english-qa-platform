@@ -11,6 +11,12 @@ export interface IQuestion extends Document {
   acceptedAnswer?: Types.ObjectId;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   category: 'grammar' | 'vocabulary' | 'pronunciation' | 'writing' | 'speaking' | 'reading' | 'listening' | 'other';
+  attachments?: {
+    type: 'image' | 'audio';
+    url: string;
+    publicId: string;
+    originalName: string;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,7 +69,26 @@ const questionSchema = new Schema<IQuestion>({
     type: String,
     enum: ['grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 'reading', 'listening', 'other'],
     required: true
-  }
+  },
+  attachments: [{
+    type: {
+      type: String,
+      enum: ['image', 'audio'],
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    publicId: {
+      type: String,
+      required: true
+    },
+    originalName: {
+      type: String,
+      required: true
+    }
+  }]
 }, {
   timestamps: true
 });
