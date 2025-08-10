@@ -13,6 +13,7 @@ import authRoutes from './routes/auth';
 import questionRoutes from './routes/questions';
 import answerRoutes from './routes/answers';
 import voteRoutes from './routes/votes';
+import uploadRoutes from './routes/upload';
 
 // Load environment variables
 dotenv.config();
@@ -53,6 +54,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/answers', answerRoutes);
 app.use('/api/votes', voteRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
