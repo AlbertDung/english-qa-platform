@@ -1,4 +1,5 @@
 export interface User {
+  _id: string;
   id: string;
   username: string;
   email: string;
@@ -15,6 +16,7 @@ export interface Question {
   tags: string[];
   author: User;
   votes: number;
+  views: number;
   viewCount: number;
   answers: Answer[];
   acceptedAnswer?: string;
