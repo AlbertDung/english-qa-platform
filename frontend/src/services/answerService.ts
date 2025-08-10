@@ -2,11 +2,18 @@ import api from './api';
 import { Answer } from '../types';
 
 export const answerService = {
-  createAnswer: async (
-    questionId: string,
-    content: string
-  ): Promise<{ success: boolean; answer: Answer }> => {
-    const response = await api.post(`/answers/questions/${questionId}/answers`, { content });
+  getAnswersByQuestion: async (questionId: string): Promise<{ answers: Answer[] }> => {
+    const response = await api.get(`/questions/${questionId}/answers`);
+    return response.data;
+  },
+
+  createAnswer: async (data: {
+    questionId: string;
+    content: string;
+  }): Promise<{ success: boolean; answer: Answer }> => {
+    const response = await api.post(`/questions/${data.questionId}/answers`, { 
+      content: data.content 
+    });
     return response.data;
   },
 
