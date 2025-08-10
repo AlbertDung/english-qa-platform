@@ -14,6 +14,7 @@ import questionRoutes from './routes/questions';
 import answerRoutes from './routes/answers';
 import voteRoutes from './routes/votes';
 import uploadRoutes from './routes/upload';
+import userRoutes from './routes/user';
 
 // Load environment variables
 dotenv.config();
@@ -55,6 +56,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/answers', answerRoutes);
 app.use('/api/votes', voteRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
