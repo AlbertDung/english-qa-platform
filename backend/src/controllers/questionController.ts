@@ -192,3 +192,58 @@ export const deleteQuestion = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getQuestionAnswers = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { page = 1, limit = 10, sort = 'oldest' } = req.query;
+
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Check if question exists
+    const question = await Question.findById(id);
+    if (!question) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
+    // Build sort object
+    let sortObj: any = {};
+    switch (sort) {
+      case 'oldest':
+        sortObj.createdAt = 1;
+        break;
+      case 'newest':
+        sortObj.createdAt = -1;
+        break;
+      case 'votes':
+        sortObj.votes = -1;
+        break;
+      default:
+        sortObj.createdAt = 1;
+    }
+
+    // Get answers with pagination
+    const answers = await Answer.find({ question: id })
+      .populate('author', 'username avatar reputation')
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limitNum);
+
+    const total = await Answer.countDocuments({ question: id });
+
+    res.json({
+      success: true,
+      answers,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum)
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
