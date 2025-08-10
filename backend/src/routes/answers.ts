@@ -9,7 +9,7 @@ import { authenticate } from '../middleware/auth';
 
 const router = express.Router();
 
-router.post('/questions/:questionId/answers', authenticate, createAnswer);
+// Individual answer operations (for direct access)
 router.put('/:id', authenticate, updateAnswer);
 router.delete('/:id', authenticate, deleteAnswer);
 router.patch('/:id/accept', authenticate, acceptAnswer);
