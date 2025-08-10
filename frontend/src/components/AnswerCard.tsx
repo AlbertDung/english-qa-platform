@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Answer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { SaveButton } from './SaveButton';
+import { getFileIcon, formatFileSize } from '../services/uploadService';
 
 interface AnswerCardProps {
   answer: Answer;
@@ -70,6 +72,38 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
             <p className="text-gray-700 whitespace-pre-wrap">{answer.content}</p>
           </div>
 
+          {/* Attachments */}
+          {answer.attachments && answer.attachments.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Attachments:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {answer.attachments.map((attachment, index) => (
+                  <div key={index} className="flex items-center p-2 bg-gray-50 rounded-lg">
+                    <span className="text-lg mr-2">
+                      {getFileIcon(attachment.fileType)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {attachment.originalName}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatFileSize(attachment.size)}
+                      </p>
+                    </div>
+                    <a
+                      href={attachment.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      View
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center">
               <span>Answered by </span>
@@ -78,14 +112,24 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
               <span>{formatDate(answer.createdAt)}</span>
             </div>
             
-            {canAccept && (
-              <button
-                onClick={handleAccept}
-                className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-              >
-                Accept Answer
-              </button>
-            )}
+            <div className="flex items-center space-x-4">
+              {isAuthenticated && (
+                <SaveButton 
+                  contentId={answer._id} 
+                  contentType="answer" 
+                  showText={false}
+                  className="text-blue-600 hover:text-blue-800"
+                />
+              )}
+              {canAccept && (
+                <button
+                  onClick={handleAccept}
+                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                >
+                  Accept Answer
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
