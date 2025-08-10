@@ -17,6 +17,14 @@ export interface IQuestion extends Document {
     publicId: string;
     originalName: string;
   }[];
+  editHistory: {
+    editedAt: Date;
+    editedBy: Types.ObjectId;
+    previousContent: string;
+    editReason?: string;
+  }[];
+  lastEditedAt?: Date;
+  lastEditedBy?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -88,7 +96,33 @@ const questionSchema = new Schema<IQuestion>({
       type: String,
       required: true
     }
-  }]
+  }],
+  editHistory: [{
+    editedAt: {
+      type: Date,
+      default: Date.now
+    },
+    editedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    previousContent: {
+      type: String,
+      required: true
+    },
+    editReason: {
+      type: String,
+      maxlength: 200
+    }
+  }],
+  lastEditedAt: {
+    type: Date
+  },
+  lastEditedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }
 }, {
   timestamps: true
 });
