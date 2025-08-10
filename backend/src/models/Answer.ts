@@ -7,6 +7,12 @@ export interface IAnswer extends Document {
   votes: number;
   isAccepted: boolean;
   aiGenerated: boolean;
+  attachments?: {
+    type: 'image' | 'audio';
+    url: string;
+    publicId: string;
+    originalName: string;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -38,7 +44,26 @@ const answerSchema = new Schema<IAnswer>({
   aiGenerated: {
     type: Boolean,
     default: false
-  }
+  },
+  attachments: [{
+    type: {
+      type: String,
+      enum: ['image', 'audio'],
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    publicId: {
+      type: String,
+      required: true
+    },
+    originalName: {
+      type: String,
+      required: true
+    }
+  }]
 }, {
   timestamps: true
 });
