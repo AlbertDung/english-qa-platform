@@ -25,6 +25,12 @@ export const questionService = {
     tags?: string[];
     difficulty?: string;
     category: string;
+    attachments?: Array<{
+      url: string;
+      filename: string;
+      fileType: 'image' | 'audio';
+      size?: number;
+    }>;
   }): Promise<{ success: boolean; question: Question }> => {
     const response = await api.post('/questions', questionData);
     return response.data;
@@ -38,6 +44,12 @@ export const questionService = {
       tags?: string[];
       difficulty?: string;
       category?: string;
+      attachments?: Array<{
+        url: string;
+        filename: string;
+        fileType: 'image' | 'audio';
+        size?: number;
+      }>;
     }
   ): Promise<{ success: boolean; question: Question }> => {
     const response = await api.put(`/questions/${id}`, questionData);

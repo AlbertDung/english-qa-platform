@@ -10,10 +10,16 @@ export const answerService = {
   createAnswer: async (data: {
     questionId: string;
     content: string;
+    attachments?: Array<{
+      url: string;
+      publicId: string;
+      filename: string;
+      originalName: string;
+      fileType: 'image' | 'audio';
+      size: number;
+    }>;
   }): Promise<{ success: boolean; answer: Answer }> => {
-    const response = await api.post(`/questions/${data.questionId}/answers`, { 
-      content: data.content 
-    });
+    const response = await api.post(`/questions/${data.questionId}/answers`, data);
     return response.data;
   },
 
