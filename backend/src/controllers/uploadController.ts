@@ -1,13 +1,46 @@
 import { Request, Response } from 'express';
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService';
+import User, { IUser } from '../models/User';
+import Activity from '../models/Activity';
 
 interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email: string;
-    role: string;
-  };
+  user?: IUser;
 }
+
+// File validation
+const validateFileType = (mimetype: string): { isValid: boolean; type: 'image' | 'audio' | null; error?: string } => {
+  const imageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+  const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/aac'];
+  
+  if (imageTypes.includes(mimetype)) {
+    return { isValid: true, type: 'image' };
+  }
+  
+  if (audioTypes.includes(mimetype)) {
+    return { isValid: true, type: 'audio' };
+  }
+  
+  return { 
+    isValid: false, 
+    type: null, 
+    error: 'Unsupported file type. Only images (JPEG, PNG, GIF, WebP) and audio files (MP3, WAV, OGG, M4A, AAC) are allowed.' 
+  };
+};
+
+const validateFileSize = (size: number, type: 'image' | 'audio'): { isValid: boolean; error?: string } => {
+  const maxImageSize = 10 * 1024 * 1024; // 10MB for images
+  const maxAudioSize = 50 * 1024 * 1024; // 50MB for audio
+  
+  if (type === 'image' && size > maxImageSize) {
+    return { isValid: false, error: 'Image file size must be less than 10MB' };
+  }
+  
+  if (type === 'audio' && size > maxAudioSize) {
+    return { isValid: false, error: 'Audio file size must be less than 50MB' };
+  }
+  
+  return { isValid: true };
+};
 
 // Upload single file
 export const uploadFile = async (req: AuthenticatedRequest, res: Response) => {
@@ -19,26 +52,63 @@ export const uploadFile = async (req: AuthenticatedRequest, res: Response) => {
       });
     }
 
-    const { buffer, mimetype, originalname } = req.file;
-    const { folder } = req.body;
+    const { buffer, mimetype, originalname, size } = req.file;
+    const { folder, context } = req.body; // context can be 'question' or 'answer'
 
-    // Determine resource type based on mimetype
+    // Validate file type
+    const typeValidation = validateFileType(mimetype);
+    if (!typeValidation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: typeValidation.error
+      });
+    }
+
+    // Validate file size
+    const sizeValidation = validateFileSize(size, typeValidation.type!);
+    if (!sizeValidation.isValid) {
+      return res.status(400).json({
+        success: false,
+        message: sizeValidation.error
+      });
+    }
+
+    // Determine resource type for Cloudinary
     let resourceType: 'image' | 'video' | 'auto' | 'raw' = 'auto';
-    if (mimetype.startsWith('image/')) {
+    if (typeValidation.type === 'image') {
       resourceType = 'image';
-    } else if (mimetype.startsWith('audio/')) {
+    } else if (typeValidation.type === 'audio') {
       resourceType = 'auto'; // Cloudinary handles audio as 'auto'
     }
 
-    // Generate unique public_id
+    // Generate unique public_id with context
     const timestamp = Date.now();
-    const publicId = `${req.user?.id}_${timestamp}_${originalname.split('.')[0]}`;
+    const userId = req.user?._id;
+    const contextFolder = context || 'general';
+    const publicId = `${userId}_${contextFolder}_${timestamp}_${originalname.split('.')[0]}`;
 
     const result = await uploadToCloudinary(buffer, {
-      folder: folder || 'english-qa/uploads',
+      folder: folder || `english-qa/${contextFolder}`,
       resource_type: resourceType,
       public_id: publicId
     });
+
+    // Log activity
+    if (userId) {
+      const activity = new Activity({
+        user: userId,
+        type: 'file_uploaded',
+        targetId: result.public_id,
+        targetType: 'file',
+        metadata: {
+          fileName: originalname,
+          fileType: typeValidation.type,
+          context: contextFolder,
+          fileSize: size
+        }
+      });
+      await activity.save();
+    }
 
     res.status(200).json({
       success: true,
@@ -46,11 +116,14 @@ export const uploadFile = async (req: AuthenticatedRequest, res: Response) => {
       data: {
         url: result.secure_url,
         publicId: result.public_id,
+        type: typeValidation.type,
+        originalName: originalname,
         resourceType: result.resource_type,
         format: result.format,
         bytes: result.bytes,
         width: result.width,
-        height: result.height
+        height: result.height,
+        duration: result.duration // For audio files
       }
     });
   } catch (error: any) {

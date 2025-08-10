@@ -2,6 +2,7 @@ import { Response } from 'express';
 import Question from '../models/Question';
 import Answer from '../models/Answer';
 import Vote from '../models/Vote';
+import Activity from '../models/Activity';
 import { AuthRequest } from '../middleware/auth';
 import { sanitizeHtml } from '../utils/helpers';
 
@@ -23,6 +24,20 @@ export const createQuestion = async (req: AuthRequest, res: Response) => {
     });
 
     await question.populate('author', 'username avatar reputation');
+
+    // Log activity
+    const activity = new Activity({
+      user: req.user!._id,
+      type: 'question_created',
+      targetId: question._id,
+      targetType: 'question',
+      metadata: {
+        title: question.title,
+        category: question.category,
+        difficulty: question.difficulty
+      }
+    });
+    await activity.save();
 
     res.status(201).json({
       success: true,
@@ -132,7 +147,7 @@ export const getQuestion = async (req: AuthRequest, res: Response) => {
 export const updateQuestion = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, tags, difficulty, category } = req.body;
+    const { title, content, tags, difficulty, category, editReason } = req.body;
 
     const question = await Question.findById(id);
 
@@ -140,23 +155,44 @@ export const updateQuestion = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'Question not found' });
     }
 
-    // Check if user is the author
-    if (question.author.toString() !== req.user!._id.toString()) {
+    // Check if user is the author or has edit permissions
+    const canEdit = question.author.toString() === req.user!._id.toString() || 
+                   req.user!.role === 'admin' || 
+                   req.user!.role === 'teacher';
+
+    if (!canEdit) {
       return res.status(403).json({ message: 'Not authorized to update this question' });
     }
 
-    question.title = title || question.title;
-    question.content = content ? sanitizeHtml(content) : question.content;
-    question.tags = tags || question.tags;
-    question.difficulty = difficulty || question.difficulty;
-    question.category = category || question.category;
+    // Save edit history if content is being changed
+    if (content && content !== question.content) {
+      question.editHistory.push({
+        editedAt: new Date(),
+        editedBy: req.user!._id,
+        previousContent: question.content,
+        editReason: editReason || 'Content updated'
+      });
+      question.lastEditedAt = new Date();
+      question.lastEditedBy = req.user!._id;
+    }
+
+    // Update fields
+    if (title) question.title = title;
+    if (content) question.content = sanitizeHtml(content);
+    if (tags) question.tags = tags;
+    if (difficulty) question.difficulty = difficulty;
+    if (category) question.category = category;
 
     await question.save();
-    await question.populate('author', 'username avatar reputation');
+    await question.populate([
+      { path: 'author', select: 'username avatar reputation role' },
+      { path: 'lastEditedBy', select: 'username' }
+    ]);
 
     res.json({
       success: true,
-      question
+      question,
+      message: 'Question updated successfully'
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -242,6 +278,58 @@ export const getQuestionAnswers = async (req: AuthRequest, res: Response) => {
         total,
         pages: Math.ceil(total / limitNum)
       }
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get question edit history
+export const getQuestionEditHistory = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const question = await Question.findById(id)
+      .populate('editHistory.editedBy', 'username')
+      .select('editHistory title');
+
+    if (!question) {
+      return res.status(404).json({ message: 'Question not found' });
+    }
+
+    res.json({
+      success: true,
+      editHistory: question.editHistory,
+      title: question.title
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Bulk operations for admins/teachers
+export const bulkDeleteQuestions = async (req: AuthRequest, res: Response) => {
+  try {
+    const { questionIds } = req.body;
+
+    if (req.user!.role !== 'admin' && req.user!.role !== 'teacher') {
+      return res.status(403).json({ message: 'Not authorized for bulk operations' });
+    }
+
+    if (!Array.isArray(questionIds) || questionIds.length === 0) {
+      return res.status(400).json({ message: 'Question IDs array is required' });
+    }
+
+    // Delete related data
+    await Answer.deleteMany({ question: { $in: questionIds } });
+    await Vote.deleteMany({ target: { $in: questionIds } });
+    
+    const result = await Question.deleteMany({ _id: { $in: questionIds } });
+
+    res.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} questions`,
+      deletedCount: result.deletedCount
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

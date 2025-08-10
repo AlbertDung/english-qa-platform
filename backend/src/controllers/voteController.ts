@@ -27,44 +27,34 @@ export const voteQuestion = async (req: AuthRequest, res: Response) => {
     });
 
     if (existingVote) {
-      if (existingVote.voteType === voteType) {
-        // Remove vote if same type
-        await Vote.findByIdAndDelete(existingVote._id);
-        question.votes += voteType === 'up' ? -1 : 1;
-        
-        // Update author reputation
-        const change = voteType === 'up' ? -2 : 1;
-        await User.findByIdAndUpdate(question.author, { $inc: { reputation: change } });
-      } else {
-        // Change vote type
-        existingVote.voteType = voteType;
-        await existingVote.save();
-        question.votes += voteType === 'up' ? 2 : -2;
-        
-        // Update author reputation
-        const change = voteType === 'up' ? 4 : -4;
-        await User.findByIdAndUpdate(question.author, { $inc: { reputation: change } });
-      }
-    } else {
-      // Create new vote
-      await Vote.create({
-        user: req.user!.id,
-        target: id,
-        targetType: 'Question',
-        voteType
+      // User already voted, return message
+      return res.status(400).json({ 
+        message: `You have already ${existingVote.voteType}voted this question`,
+        alreadyVoted: true,
+        currentVote: existingVote.voteType
       });
-      question.votes += voteType === 'up' ? 1 : -1;
-      
-      // Update author reputation
-      const change = voteType === 'up' ? 2 : -1;
-      await User.findByIdAndUpdate(question.author, { $inc: { reputation: change } });
     }
 
+    // Create new vote (only allow one vote per user)
+    await Vote.create({
+      user: req.user!.id,
+      target: id,
+      targetType: 'Question',
+      voteType
+    });
+
+    // Update question vote count
+    question.votes += voteType === 'up' ? 1 : -1;
     await question.save();
+    
+    // Update author reputation
+    const change = voteType === 'up' ? 2 : -1;
+    await User.findByIdAndUpdate(question.author, { $inc: { reputation: change } });
 
     res.json({
       success: true,
-      votes: question.votes
+      votes: question.votes,
+      userVote: voteType
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -93,44 +83,58 @@ export const voteAnswer = async (req: AuthRequest, res: Response) => {
     });
 
     if (existingVote) {
-      if (existingVote.voteType === voteType) {
-        // Remove vote if same type
-        await Vote.findByIdAndDelete(existingVote._id);
-        answer.votes += voteType === 'up' ? -1 : 1;
-        
-        // Update author reputation
-        const change = voteType === 'up' ? -5 : 1;
-        await User.findByIdAndUpdate(answer.author, { $inc: { reputation: change } });
-      } else {
-        // Change vote type
-        existingVote.voteType = voteType;
-        await existingVote.save();
-        answer.votes += voteType === 'up' ? 2 : -2;
-        
-        // Update author reputation
-        const change = voteType === 'up' ? 10 : -10;
-        await User.findByIdAndUpdate(answer.author, { $inc: { reputation: change } });
-      }
-    } else {
-      // Create new vote
-      await Vote.create({
-        user: req.user!.id,
-        target: id,
-        targetType: 'Answer',
-        voteType
+      // User already voted, return message
+      return res.status(400).json({ 
+        message: `You have already ${existingVote.voteType}voted this answer`,
+        alreadyVoted: true,
+        currentVote: existingVote.voteType
       });
-      answer.votes += voteType === 'up' ? 1 : -1;
-      
-      // Update author reputation
-      const change = voteType === 'up' ? 5 : -1;
-      await User.findByIdAndUpdate(answer.author, { $inc: { reputation: change } });
     }
 
+    // Create new vote (only allow one vote per user)
+    await Vote.create({
+      user: req.user!.id,
+      target: id,
+      targetType: 'Answer',
+      voteType
+    });
+
+    // Update answer vote count
+    answer.votes += voteType === 'up' ? 1 : -1;
     await answer.save();
+    
+    // Update author reputation
+    const change = voteType === 'up' ? 5 : -1;
+    await User.findByIdAndUpdate(answer.author, { $inc: { reputation: change } });
 
     res.json({
       success: true,
-      votes: answer.votes
+      votes: answer.votes,
+      userVote: voteType
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getUserVoteStatus = async (req: AuthRequest, res: Response) => {
+  try {
+    const { targetType, id } = req.params;
+    
+    if (!['Question', 'Answer'].includes(targetType)) {
+      return res.status(400).json({ message: 'Invalid target type' });
+    }
+
+    const vote = await Vote.findOne({
+      user: req.user!.id,
+      target: id,
+      targetType
+    });
+
+    res.json({
+      success: true,
+      userVote: vote?.voteType || null,
+      hasVoted: !!vote
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
