@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "@headlessui/react": "^1.7.15",
-    "@heroicons/react": "^2.0.18",
+    "@heroicons/react": "^2.2.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^16.18.39",
     "@types/react-syntax-highlighter": "^15.5.7",
     "autoprefixer": "^10.4.14",
