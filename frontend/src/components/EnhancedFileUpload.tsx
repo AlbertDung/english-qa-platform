@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { uploadFile, validateFile, deleteFile, getFileIcon, formatFileSize } from '../services/uploadService';
+import { uploadFile, validateFile, deleteFile, formatFileSize } from '../services/uploadService';
 import { useToast } from '../contexts/ToastContext';
+import { LightBulbIcon, PhotoIcon, MusicalNoteIcon, PaperClipIcon } from '@heroicons/react/24/outline';
 
 interface FileAttachment {
   id: string;
@@ -34,6 +35,15 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
+
+  const getFileIconComponent = (fileType: string) => {
+    if (fileType.startsWith('image/')) {
+      return <PhotoIcon className="w-5 h-5 text-blue-500" />;
+    } else if (fileType.startsWith('audio/')) {
+      return <MusicalNoteIcon className="w-5 h-5 text-purple-500" />;
+    }
+    return <PaperClipIcon className="w-5 h-5 text-gray-500" />;
+  };
 
   const handleFiles = async (files: FileList | File[]) => {
     const fileArray = Array.from(files);
@@ -231,9 +241,9 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
                 className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
               >
                 <div className="flex items-center space-x-3">
-                  <span className="text-lg">
-                    {getFileIcon(attachment.fileType)}
-                  </span>
+                  <div>
+                    {getFileIconComponent(attachment.fileType)}
+                  </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
                       {attachment.originalName}
@@ -280,7 +290,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
 
       {/* Tips */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h4 className="text-sm font-medium text-blue-900 mb-2">💡 When to add attachments:</h4>
+        <div className="flex items-center space-x-2 mb-2">
+          <LightBulbIcon className="w-4 h-4 text-blue-900" />
+          <h4 className="text-sm font-medium text-blue-900">When to add attachments:</h4>
+        </div>
         <ul className="text-sm text-blue-700 space-y-1">
           <li>• Upload screenshots of text you're confused about</li>
           <li>• Share audio recordings of pronunciation attempts</li>

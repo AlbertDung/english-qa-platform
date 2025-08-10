@@ -6,7 +6,17 @@ import {
   EyeIcon, 
   ArrowUpIcon,
   CheckCircleIcon,
-  ClockIcon 
+  ClockIcon,
+  PencilIcon,
+  DocumentTextIcon,
+  SpeakerWaveIcon,
+  ChatBubbleOvalLeftEllipsisIcon,
+  MusicalNoteIcon,
+  LanguageIcon,
+  BeakerIcon,
+  AdjustmentsVerticalIcon,
+  FireIcon,
+  BookOpenIcon
 } from '@heroicons/react/24/outline';
 
 interface QuestionCardProps {
@@ -36,42 +46,42 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           bg: 'bg-success-50',
           text: 'text-success-700',
           border: 'border-success-200',
-          emoji: '🌱'
+          icon: BeakerIcon
         };
       case 'intermediate':
         return {
           bg: 'bg-warning-50',
           text: 'text-warning-700',
           border: 'border-warning-200',
-          emoji: '🌿'
+          icon: AdjustmentsVerticalIcon
         };
       case 'advanced':
         return {
           bg: 'bg-error-50',
           text: 'text-error-700',
           border: 'border-error-200',
-          emoji: '🌳'
+          icon: FireIcon
         };
       default:
         return {
           bg: 'bg-neutral-50',
           text: 'text-neutral-700',
           border: 'border-neutral-200',
-          emoji: '📚'
+          icon: BookOpenIcon
         };
     }
   };
 
   const getCategoryConfig = (category: string) => {
-    const configs: { [key: string]: { bg: string; text: string; border: string; emoji: string } } = {
-      grammar: { bg: 'bg-primary-50', text: 'text-primary-700', border: 'border-primary-200', emoji: '📝' },
-      vocabulary: { bg: 'bg-secondary-50', text: 'text-secondary-700', border: 'border-secondary-200', emoji: '📖' },
-      pronunciation: { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200', emoji: '🗣️' },
-      writing: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', emoji: '✍️' },
-      speaking: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', emoji: '💬' },
-      reading: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', emoji: '📚' },
-      listening: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', emoji: '👂' },
-      other: { bg: 'bg-neutral-50', text: 'text-neutral-700', border: 'border-neutral-200', emoji: '🔤' }
+    const configs: { [key: string]: { bg: string; text: string; border: string; icon: any } } = {
+      grammar: { bg: 'bg-primary-50', text: 'text-primary-700', border: 'border-primary-200', icon: PencilIcon },
+      vocabulary: { bg: 'bg-secondary-50', text: 'text-secondary-700', border: 'border-secondary-200', icon: DocumentTextIcon },
+      pronunciation: { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200', icon: SpeakerWaveIcon },
+      writing: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', icon: PencilIcon },
+      speaking: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', icon: ChatBubbleOvalLeftEllipsisIcon },
+      reading: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', icon: BookOpenIcon },
+      listening: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', icon: MusicalNoteIcon },
+      other: { bg: 'bg-neutral-50', text: 'text-neutral-700', border: 'border-neutral-200', icon: LanguageIcon }
     };
     return configs[category.toLowerCase()] || configs.other;
   };
@@ -87,12 +97,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-3">
           <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl border ${categoryConfig.bg} ${categoryConfig.text} ${categoryConfig.border}`}>
-            <span className="text-sm">{categoryConfig.emoji}</span>
+            <categoryConfig.icon className="w-4 h-4" />
             <span className="text-sm font-medium capitalize">{question.category}</span>
           </div>
           
           <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl border ${difficultyConfig.bg} ${difficultyConfig.text} ${difficultyConfig.border}`}>
-            <span className="text-sm">{difficultyConfig.emoji}</span>
+            <difficultyConfig.icon className="w-4 h-4" />
             <span className="text-sm font-medium capitalize">{question.difficulty}</span>
           </div>
 
@@ -105,7 +115,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
 
           {isHot && (
             <div className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-orange-50 text-orange-700 border border-orange-200">
-              <span className="text-sm">🔥</span>
+              <FireIcon className="w-4 h-4" />
               <span className="text-sm font-medium">Hot</span>
             </div>
           )}

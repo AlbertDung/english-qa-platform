@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Answer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { SaveButton } from './SaveButton';
-import { getFileIcon, formatFileSize } from '../services/uploadService';
+import { formatFileSize } from '../services/uploadService';
+import { PhotoIcon, MusicalNoteIcon, PaperClipIcon } from '@heroicons/react/24/outline';
 
 interface AnswerCardProps {
   answer: Answer;
@@ -21,6 +22,15 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
 }) => {
   const { isAuthenticated } = useAuth();
   const [isVoting, setIsVoting] = useState(false);
+
+  const getFileIconComponent = (fileType: string) => {
+    if (fileType.startsWith('image/')) {
+      return <PhotoIcon className="w-5 h-5 text-blue-500" />;
+    } else if (fileType.startsWith('audio/')) {
+      return <MusicalNoteIcon className="w-5 h-5 text-purple-500" />;
+    }
+    return <PaperClipIcon className="w-5 h-5 text-gray-500" />;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -79,9 +89,9 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {answer.attachments.map((attachment, index) => (
                   <div key={index} className="flex items-center p-2 bg-gray-50 rounded-lg">
-                    <span className="text-lg mr-2">
-                      {getFileIcon(attachment.fileType)}
-                    </span>
+                    <div className="mr-2">
+                      {getFileIconComponent(attachment.fileType)}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {attachment.originalName}
