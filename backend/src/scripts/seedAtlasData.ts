@@ -31,28 +31,28 @@ const seedAtlasData = async () => {
       {
         username: 'john_teacher',
         email: 'john@teacher.com',
-        password: await bcrypt.hash('password123', 12),
+        password: 'password123', // Let User model hash this
         role: 'teacher',
         reputation: 850
       },
       {
         username: 'sarah_student',
         email: 'sarah@student.com',
-        password: await bcrypt.hash('password123', 12),
+        password: 'password123', // Let User model hash this
         role: 'student',
         reputation: 120
       },
       {
         username: 'mike_student',
         email: 'mike@student.com',
-        password: await bcrypt.hash('password123', 12),
+        password: 'password123', // Let User model hash this
         role: 'student',
         reputation: 75
       },
       {
         username: 'emma_teacher',
         email: 'emma@teacher.com',
-        password: await bcrypt.hash('password123', 12),
+        password: 'password123', // Let User model hash this
         role: 'teacher',
         reputation: 1200
       }
