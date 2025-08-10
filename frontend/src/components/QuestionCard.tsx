@@ -1,6 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Question } from '../types';
+import { 
+  ChatBubbleLeftIcon, 
+  EyeIcon, 
+  ArrowUpIcon,
+  CheckCircleIcon,
+  ClockIcon 
+} from '@heroicons/react/24/outline';
 
 interface QuestionCardProps {
   question: Question;
@@ -22,113 +29,172 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
     return `${diffInMonths}m ago`;
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
+  const getDifficultyConfig = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
       case 'beginner':
-        return 'bg-green-100 text-green-800';
+        return {
+          bg: 'bg-success-50',
+          text: 'text-success-700',
+          border: 'border-success-200',
+          emoji: '🌱'
+        };
       case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800';
+        return {
+          bg: 'bg-warning-50',
+          text: 'text-warning-700',
+          border: 'border-warning-200',
+          emoji: '🌿'
+        };
       case 'advanced':
-        return 'bg-red-100 text-red-800';
+        return {
+          bg: 'bg-error-50',
+          text: 'text-error-700',
+          border: 'border-error-200',
+          emoji: '🌳'
+        };
       default:
-        return 'bg-gray-100 text-gray-800';
+        return {
+          bg: 'bg-neutral-50',
+          text: 'text-neutral-700',
+          border: 'border-neutral-200',
+          emoji: '📚'
+        };
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      grammar: 'bg-blue-100 text-blue-800',
-      vocabulary: 'bg-purple-100 text-purple-800',
-      pronunciation: 'bg-pink-100 text-pink-800',
-      writing: 'bg-indigo-100 text-indigo-800',
-      speaking: 'bg-orange-100 text-orange-800',
-      reading: 'bg-green-100 text-green-800',
-      listening: 'bg-yellow-100 text-yellow-800',
-      other: 'bg-gray-100 text-gray-800'
+  const getCategoryConfig = (category: string) => {
+    const configs: { [key: string]: { bg: string; text: string; border: string; emoji: string } } = {
+      grammar: { bg: 'bg-primary-50', text: 'text-primary-700', border: 'border-primary-200', emoji: '📝' },
+      vocabulary: { bg: 'bg-secondary-50', text: 'text-secondary-700', border: 'border-secondary-200', emoji: '📖' },
+      pronunciation: { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200', emoji: '🗣️' },
+      writing: { bg: 'bg-indigo-50', text: 'text-indigo-700', border: 'border-indigo-200', emoji: '✍️' },
+      speaking: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', emoji: '💬' },
+      reading: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', emoji: '📚' },
+      listening: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', emoji: '👂' },
+      other: { bg: 'bg-neutral-50', text: 'text-neutral-700', border: 'border-neutral-200', emoji: '🔤' }
     };
-    return colors[category] || colors.other;
+    return configs[category.toLowerCase()] || configs.other;
   };
 
+  const difficultyConfig = getDifficultyConfig(question.difficulty);
+  const categoryConfig = getCategoryConfig(question.category);
+  const hasAcceptedAnswer = question.acceptedAnswer;
+  const isHot = question.viewCount > 100 || question.votes > 5;
+
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between">
-        <div className="flex-1">
-          <div className="flex items-center space-x-2 mb-2">
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(question.category)}`}>
-              {question.category}
-            </span>
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(question.difficulty)}`}>
-              {question.difficulty}
-            </span>
-            {question.acceptedAnswer && (
-              <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                ✓ Answered
-              </span>
-            )}
+    <article className="group bg-white border border-neutral-200 rounded-2xl p-6 hover:border-primary-200 hover:shadow-medium transition-all duration-300 animate-fade-in">
+      {/* Header with badges */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center space-x-3">
+          <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl border ${categoryConfig.bg} ${categoryConfig.text} ${categoryConfig.border}`}>
+            <span className="text-sm">{categoryConfig.emoji}</span>
+            <span className="text-sm font-medium capitalize">{question.category}</span>
           </div>
           
-          <h3 className="text-xl font-semibold text-gray-900 mb-2 hover:text-primary-600">
-            <Link to={`/questions/${question._id}`}>
-              {question.title}
-            </Link>
-          </h3>
-          
-          <p className="text-gray-600 mb-3 line-clamp-2">
-            {question.content.substring(0, 150)}...
-          </p>
-          
-          {question.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-              {question.tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
+          <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl border ${difficultyConfig.bg} ${difficultyConfig.text} ${difficultyConfig.border}`}>
+            <span className="text-sm">{difficultyConfig.emoji}</span>
+            <span className="text-sm font-medium capitalize">{question.difficulty}</span>
+          </div>
+
+          {hasAcceptedAnswer && (
+            <div className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-success-50 text-success-700 border border-success-200">
+              <CheckCircleIcon className="w-4 h-4" />
+              <span className="text-sm font-medium">Solved</span>
             </div>
           )}
-          
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div className="flex items-center space-x-4">
-              <span className="flex items-center space-x-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 11l5-5m0 0l5 5m-5-5v12" />
-                </svg>
-                <span>{question.votes}</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <span>{question.answers.length}</span>
-              </span>
-              <span className="flex items-center space-x-1">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>{question.viewCount}</span>
-              </span>
+
+          {isHot && (
+            <div className="flex items-center space-x-1 px-3 py-1.5 rounded-xl bg-orange-50 text-orange-700 border border-orange-200">
+              <span className="text-sm">🔥</span>
+              <span className="text-sm font-medium">Hot</span>
             </div>
-            
-            <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-primary-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-medium">
-                  {question.author.username.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <span className="text-primary-600 font-medium">
-                {question.author.username}
-              </span>
-              <span>•</span>
-              <span>{formatTimeAgo(question.createdAt)}</span>
+          )}
+        </div>
+
+        <div className="flex items-center space-x-2 text-neutral-400">
+          <ClockIcon className="w-4 h-4" />
+          <span className="text-sm">{formatTimeAgo(question.createdAt)}</span>
+        </div>
+      </div>
+
+      {/* Question Title */}
+      <h3 className="text-xl font-semibold text-neutral-900 mb-3 group-hover:text-primary-600 transition-colors line-clamp-2">
+        <Link to={`/questions/${question._id}`} className="block">
+          {question.title}
+        </Link>
+      </h3>
+
+      {/* Question Preview */}
+      <p className="text-neutral-600 mb-4 line-clamp-3 leading-relaxed">
+        {question.content.length > 200 
+          ? `${question.content.substring(0, 200)}...` 
+          : question.content
+        }
+      </p>
+
+      {/* Tags */}
+      {question.tags && question.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-4">
+          {question.tags.slice(0, 4).map((tag, index) => (
+            <span
+              key={index}
+              className="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-full text-sm font-medium transition-colors cursor-pointer"
+            >
+              #{tag}
+            </span>
+          ))}
+          {question.tags.length > 4 && (
+            <span className="px-3 py-1 bg-neutral-100 text-neutral-500 rounded-full text-sm">
+              +{question.tags.length - 4} more
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Footer with stats and author */}
+      <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
+        {/* Stats */}
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2 text-neutral-500">
+            <div className={`p-1.5 rounded-lg ${question.votes > 0 ? 'bg-success-50 text-success-600' : 'bg-neutral-50'}`}>
+              <ArrowUpIcon className="w-4 h-4" />
             </div>
+            <span className="text-sm font-medium">{question.votes}</span>
+          </div>
+
+          <div className="flex items-center space-x-2 text-neutral-500">
+            <div className={`p-1.5 rounded-lg ${question.answers.length > 0 ? 'bg-primary-50 text-primary-600' : 'bg-neutral-50'}`}>
+              <ChatBubbleLeftIcon className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium">{question.answers.length}</span>
+          </div>
+
+          <div className="flex items-center space-x-2 text-neutral-500">
+            <div className="p-1.5 rounded-lg bg-neutral-50">
+              <EyeIcon className="w-4 h-4" />
+            </div>
+            <span className="text-sm font-medium">{question.viewCount}</span>
+          </div>
+        </div>
+
+        {/* Author */}
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center">
+            <span className="text-white font-medium text-sm">
+              {question.author.username.charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div className="text-right">
+            <p className="text-sm font-medium text-neutral-800">
+              {question.author.username}
+            </p>
+            <p className="text-xs text-neutral-500">
+              {question.author.reputation || 0} reputation
+            </p>
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 };
 
