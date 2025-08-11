@@ -9,8 +9,8 @@ export interface IQuestion extends Document {
   viewCount: number;
   answers: Types.ObjectId[];
   acceptedAnswer?: Types.ObjectId;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  category: 'grammar' | 'vocabulary' | 'pronunciation' | 'writing' | 'speaking' | 'reading' | 'listening' | 'other';
+  categories: string[]; // Changed from single category to multiple categories
+  difficultyLevels: string[]; // Changed from single difficulty to multiple difficulty levels
   attachments?: {
     type: 'image' | 'audio';
     url: string;
@@ -32,20 +32,18 @@ export interface IQuestion extends Document {
 const questionSchema = new Schema<IQuestion>({
   title: {
     type: String,
-    required: [true, 'Question title is required'],
+    required: true,
     trim: true,
-    minlength: [10, 'Title must be at least 10 characters long'],
-    maxlength: [200, 'Title cannot exceed 200 characters']
+    maxlength: 200
   },
   content: {
     type: String,
-    required: [true, 'Question content is required'],
-    minlength: [20, 'Content must be at least 20 characters long']
+    required: true,
+    trim: true
   },
   tags: [{
     type: String,
-    trim: true,
-    lowercase: true
+    trim: true
   }],
   author: {
     type: Schema.Types.ObjectId,
@@ -68,16 +66,16 @@ const questionSchema = new Schema<IQuestion>({
     type: Schema.Types.ObjectId,
     ref: 'Answer'
   },
-  difficulty: {
+  categories: [{ // Changed from single category to array
     type: String,
-    enum: ['beginner', 'intermediate', 'advanced'],
-    default: 'beginner'
-  },
-  category: {
-    type: String,
-    enum: ['grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 'reading', 'listening', 'other'],
+    enum: ['grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 'reading', 'listening', 'business', 'academic', 'casual', 'technical', 'other'],
     required: true
-  },
+  }],
+  difficultyLevels: [{ // Changed from single difficulty to array
+    type: String,
+    enum: ['beginner', 'intermediate', 'advanced', 'expert'],
+    required: true
+  }],
   attachments: [{
     type: {
       type: String,
@@ -104,21 +102,12 @@ const questionSchema = new Schema<IQuestion>({
     },
     editedBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: 'User'
     },
-    previousContent: {
-      type: String,
-      required: true
-    },
-    editReason: {
-      type: String,
-      maxlength: 200
-    }
+    previousContent: String,
+    editReason: String
   }],
-  lastEditedAt: {
-    type: Date
-  },
+  lastEditedAt: Date,
   lastEditedBy: {
     type: Schema.Types.ObjectId,
     ref: 'User'
@@ -127,8 +116,7 @@ const questionSchema = new Schema<IQuestion>({
   timestamps: true
 });
 
-// Index for search functionality
+// Text index for search functionality
 questionSchema.index({ title: 'text', content: 'text', tags: 'text' });
-questionSchema.index({ category: 1, difficulty: 1, createdAt: -1 });
 
 export default mongoose.model<IQuestion>('Question', questionSchema);
