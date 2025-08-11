@@ -42,6 +42,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   };
 
   const getDifficultyConfig = (difficulty: string) => {
+    if (!difficulty) {
+      return {
+        bg: 'bg-neutral-50',
+        text: 'text-neutral-700',
+        border: 'border-neutral-200',
+        icon: BookOpenIcon
+      };
+    }
+    
     switch (difficulty.toLowerCase()) {
       case 'beginner':
         return {
@@ -64,6 +73,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           border: 'border-error-200',
           icon: FireIcon
         };
+      case 'expert':
+        return {
+          bg: 'bg-purple-50',
+          text: 'text-purple-700',
+          border: 'border-purple-200',
+          icon: FireIcon
+        };
       default:
         return {
           bg: 'bg-neutral-50',
@@ -75,6 +91,15 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
   };
 
   const getCategoryConfig = (category: string) => {
+    if (!category) {
+      return {
+        bg: 'bg-neutral-50',
+        text: 'text-neutral-700',
+        border: 'border-neutral-200',
+        icon: LanguageIcon
+      };
+    }
+    
     const configs: { [key: string]: { bg: string; text: string; border: string; icon: any } } = {
       grammar: { bg: 'bg-primary-50', text: 'text-primary-700', border: 'border-primary-200', icon: PencilIcon },
       vocabulary: { bg: 'bg-secondary-50', text: 'text-secondary-700', border: 'border-secondary-200', icon: DocumentTextIcon },
@@ -83,13 +108,69 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       speaking: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', icon: ChatBubbleOvalLeftEllipsisIcon },
       reading: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', icon: BookOpenIcon },
       listening: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', icon: MusicalNoteIcon },
+      business: { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200', icon: DocumentTextIcon },
+      academic: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: BookOpenIcon },
+      casual: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', icon: ChatBubbleOvalLeftEllipsisIcon },
+      technical: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: PencilIcon },
       other: { bg: 'bg-neutral-50', text: 'text-neutral-700', border: 'border-neutral-200', icon: LanguageIcon }
     };
     return configs[category.toLowerCase()] || configs.other;
   };
 
-  const difficultyConfig = getDifficultyConfig(question.difficulty);
-  const categoryConfig = getCategoryConfig(question.category);
+  const getDifficultyColor = (difficulty: string) => {
+    if (!difficulty) return 'bg-neutral-100 text-neutral-800';
+    
+    switch (difficulty.toLowerCase()) {
+      case 'beginner':
+        return 'bg-success-100 text-success-800';
+      case 'intermediate':
+        return 'bg-warning-100 text-warning-800';
+      case 'advanced':
+        return 'bg-error-100 text-error-800';
+      case 'expert':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-neutral-100 text-neutral-800';
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    if (!category) return 'bg-neutral-100 text-neutral-800';
+    
+    switch (category.toLowerCase()) {
+      case 'grammar':
+        return 'bg-primary-100 text-primary-800';
+      case 'vocabulary':
+        return 'bg-secondary-100 text-secondary-800';
+      case 'pronunciation':
+        return 'bg-pink-100 text-pink-800';
+      case 'writing':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'speaking':
+        return 'bg-orange-100 text-orange-800';
+      case 'reading':
+        return 'bg-green-100 text-green-800';
+      case 'listening':
+        return 'bg-purple-100 text-purple-800';
+      case 'business':
+        return 'bg-gray-100 text-gray-800';
+      case 'academic':
+        return 'bg-red-100 text-red-800';
+      case 'casual':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'technical':
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-neutral-100 text-neutral-800';
+    }
+  };
+
+  // Get the first difficulty and category with fallbacks
+  const firstDifficulty = question.difficultyLevels && question.difficultyLevels.length > 0 ? question.difficultyLevels[0] : 'beginner';
+  const firstCategory = question.categories && question.categories.length > 0 ? question.categories[0] : 'other';
+  
+  const difficultyConfig = getDifficultyConfig(firstDifficulty);
+  const categoryConfig = getCategoryConfig(firstCategory);
   const hasAcceptedAnswer = question.acceptedAnswer;
   const isHot = question.viewCount > 100 || question.votes > 5;
 
@@ -100,12 +181,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
         <div className="flex items-center space-x-3">
           <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl border ${categoryConfig.bg} ${categoryConfig.text} ${categoryConfig.border}`}>
             <categoryConfig.icon className="w-4 h-4" />
-            <span className="text-sm font-medium capitalize">{question.category}</span>
+            <span className="text-sm font-medium capitalize">{firstCategory}</span>
           </div>
           
           <div className={`flex items-center space-x-1 px-3 py-1.5 rounded-xl border ${difficultyConfig.bg} ${difficultyConfig.text} ${difficultyConfig.border}`}>
             <difficultyConfig.icon className="w-4 h-4" />
-            <span className="text-sm font-medium capitalize">{question.difficulty}</span>
+            <span className="text-sm font-medium capitalize">{firstDifficulty}</span>
           </div>
 
           {hasAcceptedAnswer && (
@@ -188,21 +269,39 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
       {/* Tags */}
       {question.tags && question.tags.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-4">
-          {question.tags.slice(0, 4).map((tag, index) => (
-            <span
-              key={index}
-              className="px-3 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-full text-sm font-medium transition-colors cursor-pointer"
-            >
-              #{tag}
+          {question.tags.map((tag, index) => (
+            <span key={index} className="px-2 py-1 bg-neutral-100 text-neutral-700 text-xs rounded-full">
+              {tag}
             </span>
           ))}
-          {question.tags.length > 4 && (
-            <span className="px-3 py-1 bg-neutral-100 text-neutral-500 rounded-full text-sm">
-              +{question.tags.length - 4} more
-            </span>
-          )}
         </div>
       )}
+
+      {/* Categories and Difficulty Levels */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {question.categories && question.categories.length > 0 ? (
+          question.categories.map((category, index) => (
+            <span key={index} className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(category)}`}>
+              {category}
+            </span>
+          ))
+        ) : (
+          <span className="px-2 py-1 text-xs font-medium rounded-full bg-neutral-100 text-neutral-800">
+            other
+          </span>
+        )}
+        {question.difficultyLevels && question.difficultyLevels.length > 0 ? (
+          question.difficultyLevels.map((difficulty, index) => (
+            <span key={index} className={`px-2 py-1 text-xs font-medium rounded-full ${getDifficultyColor(difficulty)}`}>
+              {difficulty}
+            </span>
+          ))
+        ) : (
+          <span className="px-2 py-1 text-xs font-medium rounded-full bg-neutral-100 text-neutral-800">
+            beginner
+          </span>
+        )}
+      </div>
 
       {/* Footer with stats and author */}
       <div className="flex items-center justify-between pt-4 border-t border-neutral-100">
