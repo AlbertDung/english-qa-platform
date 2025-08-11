@@ -9,8 +9,22 @@ import { sanitizeHtml } from '../utils/helpers';
 
 export const createAnswer = async (req: AuthRequest, res: Response) => {
   try {
-    const { id: questionId } = req.params; // Fix: Use id from route params
+    console.log('=== createAnswer called ===');
+    console.log('Request params:', req.params);
+    console.log('Request body:', req.body);
+    console.log('User:', req.user);
+    
+    // Get questionId from route params (primary) or request body (fallback)
+    const questionId = req.params.id || req.body.questionId;
     const { content, attachments } = req.body;
+
+    console.log('Question ID:', questionId);
+    console.log('Content:', content);
+    console.log('Attachments:', attachments);
+
+    if (!questionId) {
+      return res.status(400).json({ message: 'Question ID is required' });
+    }
 
     if (!content) {
       return res.status(400).json({ message: 'Answer content is required' });
@@ -22,6 +36,8 @@ export const createAnswer = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'Question not found' });
     }
 
+    console.log('Question found:', question._id);
+
     // Prepare answer data
     const answerData: any = {
       content: sanitizeHtml(content),
@@ -31,15 +47,25 @@ export const createAnswer = async (req: AuthRequest, res: Response) => {
 
     // Add attachments if provided
     if (attachments && Array.isArray(attachments) && attachments.length > 0) {
-      answerData.attachments = attachments.map((att: any) => ({
-        type: att.fileType,
-        url: att.url,
-        publicId: att.publicId,
-        originalName: att.originalName || att.filename
-      }));
+      console.log('Processing attachments...');
+      answerData.attachments = attachments.map((att: any) => {
+        const mappedAttachment = {
+          type: att.fileType || att.type, // Support both fileType and type
+          url: att.url,
+          publicId: att.publicId,
+          originalName: att.originalName || att.filename
+        };
+        console.log('Mapped attachment:', mappedAttachment);
+        return mappedAttachment;
+      });
+      console.log('Final answerData.attachments:', answerData.attachments);
     }
 
+    console.log('Creating answer with data:', answerData);
+
     const answer = await Answer.create(answerData);
+
+    console.log('Answer created successfully:', answer._id);
 
     // Add answer to question's answers array
     question.answers.push(answer._id as any);
@@ -61,11 +87,18 @@ export const createAnswer = async (req: AuthRequest, res: Response) => {
     });
     await activity.save();
 
+    console.log('Activity logged successfully');
+
     res.status(201).json({
       success: true,
       answer
     });
   } catch (error: any) {
+    console.error('=== Error in createAnswer ===');
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Error name:', error.name);
+    console.error('Full error object:', error);
     res.status(500).json({ message: error.message });
   }
 };
