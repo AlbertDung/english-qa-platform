@@ -1,27 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Answer } from '../types';
-import { useAuth } from '../contexts/AuthContext';
-import { SaveButton } from './SaveButton';
-import { PhotoIcon, MusicalNoteIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowUpIcon, 
+  ArrowDownIcon, 
+  CheckCircleIcon,
+  PaperClipIcon,
+  PhotoIcon,
+  MusicalNoteIcon
+} from '@heroicons/react/24/outline';
 
 interface AnswerCardProps {
   answer: Answer;
-  onVote: (type: 'up' | 'down') => Promise<void>;
-  onAccept: () => Promise<void>;
-  canAccept: boolean;
-  isAccepted: boolean;
+  onVote: (type: 'up' | 'down') => void;
+  onAccept?: () => void;
+  canAccept?: boolean;
+  isAccepted?: boolean;
 }
 
 const AnswerCard: React.FC<AnswerCardProps> = ({ 
   answer, 
-  onVote,
-  onAccept,
-  canAccept,
-  isAccepted
+  onVote, 
+  onAccept, 
+  canAccept, 
+  isAccepted 
 }) => {
-  const { isAuthenticated } = useAuth();
-  const [isVoting, setIsVoting] = useState(false);
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -32,80 +34,79 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
     });
   };
 
-  const handleVote = async (type: 'up' | 'down') => {
-    if (!isAuthenticated || isVoting) return;
-
-    try {
-      setIsVoting(true);
-      await onVote(type);
-    } catch (error) {
-      console.error('Vote failed:', error);
-    } finally {
-      setIsVoting(false);
-    }
-  };
-
-  const handleAccept = async () => {
-    if (!isAuthenticated) return;
-
-    try {
-      await onAccept();
-    } catch (error) {
-      console.error('Accept failed:', error);
-    }
-  };
-
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 ${isAccepted ? 'border-2 border-green-500' : ''}`}>
-      {isAccepted && (
-        <div className="mb-4 flex items-center text-green-600">
-          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-          </svg>
-          <span className="font-medium">Accepted Answer</span>
+    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+      <div className="flex items-start space-x-4">
+        {/* Voting Section */}
+        <div className="flex flex-col items-center space-y-2">
+          <button
+            onClick={() => onVote('up')}
+            className="p-2 text-gray-400 hover:text-green-500 hover:bg-green-50 rounded-lg transition-colors"
+          >
+            <ArrowUpIcon className="w-5 h-5" />
+          </button>
+          <span className="text-lg font-bold text-gray-900">{answer.votes}</span>
+          <button
+            onClick={() => onVote('down')}
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+          >
+            <ArrowDownIcon className="w-5 h-5" />
+          </button>
         </div>
-      )}
 
-      <div className="flex items-start justify-between">
+        {/* Answer Content */}
         <div className="flex-1">
           <div className="prose max-w-none mb-4">
             <p className="text-gray-700 whitespace-pre-wrap">{answer.content}</p>
           </div>
 
-          {/* Attachments */}
+          {/* Answer Attachments */}
           {answer.attachments && answer.attachments.length > 0 && (
             <div className="mb-4">
-              <h4 className="text-sm font-medium text-gray-900 mb-2">Attachments:</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <h5 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                <PaperClipIcon className="w-4 h-4 mr-2 text-gray-500" />
+                Attachments ({answer.attachments.length})
+              </h5>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {answer.attachments.map((attachment, index) => (
-                  <div key={index} className="flex items-center p-2 bg-gray-50 rounded-lg">
-                    <div className="mr-2">
-                      {attachment.type === 'image' ? (
-                        <PhotoIcon className="w-5 h-5 text-blue-500" />
-                      ) : (
-                        <MusicalNoteIcon className="w-5 h-5 text-purple-500" />
-                      )}
+                  <div key={index} className="group bg-gray-50 hover:bg-gray-100 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        {attachment.type === 'image' ? (
+                          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <PhotoIcon className="w-5 h-5 text-blue-600" />
+                          </div>
+                        ) : (
+                          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <MusicalNoteIcon className="w-5 h-5 text-purple-600" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                          {attachment.originalName}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {attachment.type === 'image' ? 'Image file' : 'Audio file'}
+                        </p>
+                      </div>
+                      <a
+                        href={attachment.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors duration-200 hover:scale-105 transform"
+                      >
+                        View
+                      </a>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {attachment.originalName}
-                      </p>
-                    </div>
-                    <a
-                      href={attachment.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="ml-2 text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      View
-                    </a>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          <div className="flex items-center justify-between text-sm text-gray-500">
+          {/* Answer Footer */}
+          <div className="flex items-center justify-between text-sm text-gray-500 pt-4 border-t border-gray-100">
             <div className="flex items-center">
               <span>Answered by </span>
               <span className="font-medium text-gray-700 ml-1">{answer.author.username}</span>
@@ -113,48 +114,24 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
               <span>{formatDate(answer.createdAt)}</span>
             </div>
             
-            <div className="flex items-center space-x-4">
-              {isAuthenticated && (
-                <SaveButton 
-                  contentId={answer._id} 
-                  contentType="answer" 
-                  showText={false}
-                  className="text-blue-600 hover:text-blue-800"
-                />
-              )}
-              {canAccept && (
-                <button
-                  onClick={handleAccept}
-                  className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
-                >
-                  Accept Answer
-                </button>
-              )}
-            </div>
+            {/* Accept Answer Button */}
+            {canAccept && !isAccepted && (
+              <button
+                onClick={onAccept}
+                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-md transition-colors duration-200 hover:scale-105 transform"
+              >
+                Accept Answer
+              </button>
+            )}
+            
+            {/* Accepted Badge */}
+            {isAccepted && (
+              <div className="flex items-center space-x-2 px-3 py-2 bg-green-100 text-green-800 rounded-full">
+                <CheckCircleIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">Accepted</span>
+              </div>
+            )}
           </div>
-        </div>
-
-        {/* Voting Section */}
-        <div className="flex flex-col items-center ml-4">
-          <button
-            onClick={() => handleVote('up')}
-            disabled={!isAuthenticated || isVoting}
-            className="p-2 text-gray-400 hover:text-green-500 disabled:opacity-50"
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
-          <span className="text-lg font-bold text-gray-900">{answer.votes}</span>
-          <button
-            onClick={() => handleVote('down')}
-            disabled={!isAuthenticated || isVoting}
-            className="p-2 text-gray-400 hover:text-red-500 disabled:opacity-50"
-          >
-            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
