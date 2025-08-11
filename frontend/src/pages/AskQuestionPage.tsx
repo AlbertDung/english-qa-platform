@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EnhancedFileUpload from '../components/EnhancedFileUpload';
 import { 
-  QuestionMarkCircleIcon,
   QueueListIcon,
   DocumentTextIcon,
   TagIcon,
@@ -18,7 +17,6 @@ import {
   PencilIcon,
   SpeakerWaveIcon,
   ChatBubbleOvalLeftEllipsisIcon,
-  EyeIcon,
   MusicalNoteIcon,
   LanguageIcon,
   BeakerIcon,
