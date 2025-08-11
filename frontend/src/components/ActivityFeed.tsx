@@ -61,19 +61,16 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
     const iconClass = "w-5 h-5";
     switch (type) {
       case 'question_created': return <ChatBubbleLeftRightIcon className={iconClass} />;
-      case 'question_updated': return <PencilIcon className={iconClass} />;
+      case 'question_edited': return <PencilIcon className={iconClass} />;
       case 'question_deleted': return <DocumentTextIcon className={iconClass} />;
       case 'answer_created': return <LightBulbIcon className={iconClass} />;
-      case 'answer_updated': return <PencilIcon className={iconClass} />;
+      case 'answer_edited': return <PencilIcon className={iconClass} />;
       case 'answer_deleted': return <DocumentTextIcon className={iconClass} />;
-      case 'question_voted': return <ChevronUpIcon className={iconClass} />;
-      case 'answer_voted': return <ChevronUpIcon className={iconClass} />;
+      case 'vote_cast': return <ChevronUpIcon className={iconClass} />;
       case 'question_saved': return <HeartIcon className={iconClass} />;
       case 'answer_saved': return <HeartIcon className={iconClass} />;
       case 'question_unsaved': return <HeartIcon className={iconClass} />;
       case 'answer_unsaved': return <HeartIcon className={iconClass} />;
-      case 'file_uploaded': return <DocumentTextIcon className={iconClass} />;
-      case 'profile_updated': return <StarIcon className={iconClass} />;
       default: return <DocumentTextIcon className={iconClass} />;
     }
   };
@@ -84,20 +81,18 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
     switch (type) {
       case 'question_created':
         return `Created a question: "${metadata.title}"`;
-      case 'question_updated':
+      case 'question_edited':
         return `Updated question: "${metadata.title}"`;
       case 'question_deleted':
         return `Deleted question: "${metadata.title}"`;
       case 'answer_created':
         return `Answered a question${metadata.questionTitle ? `: "${metadata.questionTitle}"` : ''}`;
-      case 'answer_updated':
+      case 'answer_edited':
         return `Updated an answer`;
       case 'answer_deleted':
         return `Deleted an answer`;
-      case 'question_voted':
-        return `Voted on a question`;
-      case 'answer_voted':
-        return `Voted on an answer`;
+      case 'vote_cast':
+        return `Voted on ${metadata.targetType}`;
       case 'question_saved':
         return `Saved question: "${metadata.title}"`;
       case 'answer_saved':
@@ -106,10 +101,6 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
         return `Unsaved a question`;
       case 'answer_unsaved':
         return `Unsaved an answer`;
-      case 'file_uploaded':
-        return `Uploaded a ${metadata.fileType} file`;
-      case 'profile_updated':
-        return `Updated profile information`;
       default:
         return `Performed ${String(type).replace('_', ' ')}`;
     }
@@ -117,11 +108,10 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
 
   const getActivityColor = (type: string) => {
     if (type.includes('created')) return 'text-success-600';
-    if (type.includes('updated')) return 'text-primary-600';
+    if (type.includes('edited')) return 'text-primary-600';
     if (type.includes('deleted')) return 'text-error-600';
-    if (type.includes('voted')) return 'text-secondary-600';
+    if (type.includes('vote')) return 'text-secondary-600';
     if (type.includes('saved')) return 'text-warning-600';
-    if (type.includes('uploaded')) return 'text-info-600';
     return 'text-neutral-600';
   };
 
@@ -145,7 +135,7 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
     { value: 'question_created', label: 'Questions', count: 0 },
     { value: 'answer_created', label: 'Answers', count: 0 },
     { value: 'question_saved', label: 'Saved', count: 0 },
-    { value: 'file_uploaded', label: 'Uploads', count: 0 }
+    { value: 'vote_cast', label: 'Votes', count: 0 }
   ];
 
   if (loading && page === 1) {
@@ -216,9 +206,9 @@ export const ActivityFeed: React.FC<ActivityFeedProps> = ({
                 <div className="flex items-start space-x-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
                     activity.type.includes('created') ? 'bg-success-100' :
-                    activity.type.includes('updated') ? 'bg-primary-100' :
+                    activity.type.includes('edited') ? 'bg-primary-100' :
                     activity.type.includes('deleted') ? 'bg-error-100' :
-                    activity.type.includes('voted') ? 'bg-secondary-100' :
+                    activity.type.includes('vote') ? 'bg-secondary-100' :
                     activity.type.includes('saved') ? 'bg-warning-100' :
                     'bg-neutral-100'
                   }`}>
