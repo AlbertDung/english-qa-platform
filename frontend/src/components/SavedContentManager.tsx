@@ -56,9 +56,9 @@ export const SavedContentManager: React.FC<SavedContentManagerProps> = ({ classN
     return (
       <div className={`space-y-4 ${className}`}>
         <div className="animate-pulse">
-          <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+          <div className="h-10 bg-neutral-200 rounded-xl mb-4"></div>
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+            <div key={i} className="h-32 bg-neutral-200 rounded-xl mb-4"></div>
           ))}
         </div>
       </div>
@@ -68,8 +68,8 @@ export const SavedContentManager: React.FC<SavedContentManagerProps> = ({ classN
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white rounded-xl p-6 border border-neutral-200">
+        <h1 className="text-2xl font-bold text-neutral-900 mb-4">
           Saved Content
         </h1>
         
@@ -78,30 +78,30 @@ export const SavedContentManager: React.FC<SavedContentManagerProps> = ({ classN
           <div className="flex space-x-2">
             <button
               onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 filter === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
               All ({pagination?.totalItems || 0})
             </button>
             <button
               onClick={() => setFilter('question')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 filter === 'question'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
               Questions
             </button>
             <button
               onClick={() => setFilter('answer')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
                 filter === 'answer'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
               }`}
             >
               Answers
@@ -114,7 +114,7 @@ export const SavedContentManager: React.FC<SavedContentManagerProps> = ({ classN
               placeholder="Search by tags..."
               value={searchTags}
               onChange={(e) => setSearchTags(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
             />
           </div>
         </div>
@@ -122,16 +122,16 @@ export const SavedContentManager: React.FC<SavedContentManagerProps> = ({ classN
 
       {/* Content */}
       {savedItems.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-12 border border-gray-200 dark:border-gray-700 text-center">
-          <div className="mx-auto w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white rounded-xl p-12 border border-neutral-200 text-center">
+          <div className="mx-auto w-24 h-24 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-12 h-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-neutral-900 mb-2">
             No saved content yet
           </h3>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-neutral-500">
             Start saving questions and answers to build your personal collection
           </p>
         </div>
@@ -151,7 +151,7 @@ export const SavedContentManager: React.FC<SavedContentManagerProps> = ({ classN
               <button
                 onClick={() => fetchSavedContent(page + 1)}
                 disabled={loading}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Loading...' : 'Load More'}
               </button>
@@ -173,15 +173,15 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
   const isQuestion = item.contentType === 'question';
   
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-xl p-6 border border-neutral-200 hover:shadow-soft transition-shadow">
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           {/* Type Badge */}
           <div className="flex items-center space-x-2 mb-3">
             <span className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
               isQuestion 
-                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
-                : 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300'
+                ? 'bg-primary-100 text-primary-800'
+                : 'bg-success-100 text-success-800'
             }`}>
               {isQuestion ? (
                 <>
@@ -195,20 +195,20 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
                 </>
               )}
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-neutral-500">
               Saved {new Date(item.savedAt).toLocaleDateString()}
             </span>
           </div>
 
           {/* Title for questions */}
           {isQuestion && (content as Question).title && (
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-2">
               {(content as Question).title}
             </h3>
           )}
 
           {/* Content preview */}
-          <p className="text-gray-600 dark:text-gray-300 mb-3 line-clamp-3">
+          <p className="text-neutral-600 mb-3 line-clamp-3">
             {content?.content || 'Content not available'}
           </p>
 
@@ -218,7 +218,7 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
               {item.tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300"
+                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-secondary-100 text-secondary-800"
                 >
                   #{tag}
                 </span>
@@ -228,8 +228,8 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
 
           {/* Notes */}
           {item.notes && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-3 mb-3">
-              <p className="text-sm text-yellow-800 dark:text-yellow-300">
+            <div className="bg-warning-50 border-l-4 border-warning-400 p-3 mb-3">
+              <p className="text-sm text-warning-800">
                 <span className="font-medium">Note:</span> {item.notes}
               </p>
             </div>
@@ -237,7 +237,7 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
 
           {/* Author info */}
           {content?.author && (
-            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center space-x-2 text-sm text-neutral-500">
               <span>by</span>
               <span className="font-medium">{content.author.username}</span>
               <span>•</span>
@@ -250,7 +250,7 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
         <div className="flex flex-col space-y-2 ml-4">
           <button
             onClick={() => onUnsave(item.contentId, item.contentType)}
-            className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            className="p-2 text-error-400 hover:text-error-600 hover:bg-error-50 rounded-xl transition-colors"
             title="Remove from saved"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +259,7 @@ const SavedItemCard: React.FC<SavedItemCardProps> = ({ item, onUnsave }) => {
           </button>
           
           <button
-            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+            className="p-2 text-neutral-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-colors"
             title="View content"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
