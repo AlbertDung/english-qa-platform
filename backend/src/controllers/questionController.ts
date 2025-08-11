@@ -8,20 +8,33 @@ import { sanitizeHtml } from '../utils/helpers';
 
 export const createQuestion = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, content, tags, difficulty, category } = req.body;
+    const { title, content, tags, difficulty, category, attachments } = req.body;
 
     if (!title || !content || !category) {
       return res.status(400).json({ message: 'Title, content, and category are required' });
     }
 
-    const question = await Question.create({
+    // Prepare question data
+    const questionData: any = {
       title,
       content: sanitizeHtml(content),
       tags: tags || [],
       difficulty: difficulty || 'beginner',
       category,
       author: req.user!._id
-    });
+    };
+
+    // Add attachments if provided
+    if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+      questionData.attachments = attachments.map((att: any) => ({
+        type: att.fileType || att.type, // Support both fileType and type
+        url: att.url,
+        publicId: att.publicId || att.public_id, // Support both publicId and public_id
+        originalName: att.originalName || att.filename
+      }));
+    }
+
+    const question = await Question.create(questionData);
 
     await question.populate('author', 'username avatar reputation');
 
