@@ -19,12 +19,12 @@ export const questionService = {
     return response.data;
   },
 
-  createQuestion: async (questionData: {
+  createQuestion: async (data: {
     title: string;
     content: string;
     tags?: string[];
-    difficulty?: string;
-    category: string;
+    difficultyLevels?: string[];
+    categories: string[];
     attachments?: Array<{
       url: string;
       publicId: string;
@@ -33,28 +33,25 @@ export const questionService = {
       size?: number;
     }>;
   }): Promise<{ success: boolean; question: Question }> => {
-    const response = await api.post('/questions', questionData);
+    const response = await api.post('/questions', data);
     return response.data;
   },
 
-  updateQuestion: async (
-    id: string,
-    questionData: {
-      title?: string;
-      content?: string;
-      tags?: string[];
-      difficulty?: string;
-      category?: string;
-      attachments?: Array<{
-        url: string;
-        publicId: string;
-        originalName: string;
-        type: 'image' | 'audio';
-        size?: number;
-      }>;
-    }
-  ): Promise<{ success: boolean; question: Question }> => {
-    const response = await api.put(`/questions/${id}`, questionData);
+  updateQuestion: async (id: string, data: {
+    title?: string;
+    content?: string;
+    tags?: string[];
+    difficultyLevels?: string[];
+    categories?: string[];
+    attachments?: Array<{
+      url: string;
+      publicId: string;
+      originalName: string;
+      type: 'image' | 'audio';
+      size?: number;
+    }>;
+  }): Promise<{ success: boolean; question: Question }> => {
+    const response = await api.put(`/questions/${id}`, data);
     return response.data;
   },
 
