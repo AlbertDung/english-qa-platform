@@ -11,20 +11,17 @@ export interface User {
   savedAnswers: string[];
   activityLog: string[];
   preferences: {
-    theme: 'light' | 'dark';
-    notifications: boolean;
-    language: string;
-    emailDigest: boolean;
+    emailNotifications: boolean;
+    categories: string[];
+    difficultyLevel: string;
   };
   profile: {
-    bio: string;
-    location: string;
-    website: string;
-    socialMedia: {
-      twitter: string;
-      linkedin: string;
-      github: string;
-    };
+    bio?: string;
+    location?: string;
+    website?: string;
+    learningGoals?: string[];
+    nativeLanguage?: string;
+    englishLevel?: 'beginner' | 'intermediate' | 'advanced';
   };
 }
 
@@ -35,7 +32,6 @@ export interface Question {
   tags: string[];
   author: User;
   votes: number;
-  views: number;
   viewCount: number;
   answers: Answer[];
   acceptedAnswer?: string;
@@ -60,25 +56,19 @@ export interface Answer {
 }
 
 export interface FileAttachment {
-  _id: string;
-  filename: string;
-  originalName: string;
+  type: 'image' | 'audio';
   url: string;
   publicId: string;
-  fileType: 'image' | 'audio';
-  size: number;
-  uploadedBy: string;
-  uploadedAt: string;
+  originalName: string;
 }
 
 export interface Activity {
   _id: string;
   user: string;
-  type: 'question_created' | 'question_updated' | 'question_deleted' | 'answer_created' | 'answer_updated' | 'answer_deleted' | 
-        'question_voted' | 'answer_voted' | 'question_saved' | 'answer_saved' | 'question_unsaved' | 'answer_unsaved' | 
-        'file_uploaded' | 'profile_updated';
+  type: 'question_created' | 'answer_created' | 'question_edited' | 'answer_edited' | 'question_deleted' | 'answer_deleted' | 
+        'vote_cast' | 'question_saved' | 'answer_saved' | 'question_unsaved' | 'answer_unsaved';
   targetId: string;
-  targetType: 'question' | 'answer' | 'user';
+  targetType: 'question' | 'answer' | 'vote';
   metadata: Record<string, any>;
   createdAt: string;
 }
