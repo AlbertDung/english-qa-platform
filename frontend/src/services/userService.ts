@@ -5,7 +5,7 @@ import { ApiResponse, SavedContent, User } from '../types';
 export const getUserQuestions = async (
   userId?: string, 
   page = 1, 
-  limit = 10, 
+  limit = 1000, 
   status: 'all' | 'answered' | 'unanswered' = 'all'
 ) => {
   const endpoint = userId ? `/users/questions/${userId}` : '/users/questions';
