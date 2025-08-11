@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Answer } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { SaveButton } from './SaveButton';
-import { formatFileSize } from '../services/uploadService';
-import { PhotoIcon, MusicalNoteIcon, PaperClipIcon } from '@heroicons/react/24/outline';
+import { PhotoIcon, MusicalNoteIcon } from '@heroicons/react/24/outline';
 
 interface AnswerCardProps {
   answer: Answer;
@@ -22,15 +21,6 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
 }) => {
   const { isAuthenticated } = useAuth();
   const [isVoting, setIsVoting] = useState(false);
-
-  const getFileIconComponent = (fileType: string) => {
-    if (fileType.startsWith('image/')) {
-      return <PhotoIcon className="w-5 h-5 text-blue-500" />;
-    } else if (fileType.startsWith('audio/')) {
-      return <MusicalNoteIcon className="w-5 h-5 text-purple-500" />;
-    }
-    return <PaperClipIcon className="w-5 h-5 text-gray-500" />;
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -90,14 +80,15 @@ const AnswerCard: React.FC<AnswerCardProps> = ({
                 {answer.attachments.map((attachment, index) => (
                   <div key={index} className="flex items-center p-2 bg-gray-50 rounded-lg">
                     <div className="mr-2">
-                      {getFileIconComponent(attachment.fileType)}
+                      {attachment.type === 'image' ? (
+                        <PhotoIcon className="w-5 h-5 text-blue-500" />
+                      ) : (
+                        <MusicalNoteIcon className="w-5 h-5 text-purple-500" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {attachment.originalName}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatFileSize(attachment.size)}
                       </p>
                     </div>
                     <a
