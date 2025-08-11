@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { uploadToCloudinary, deleteFromCloudinary } from '../services/cloudinaryService';
 import User, { IUser } from '../models/User';
-import Activity from '../models/Activity';
 
 interface AuthenticatedRequest extends Request {
   user?: IUser;
@@ -93,23 +92,6 @@ export const uploadFile = async (req: AuthenticatedRequest, res: Response) => {
       public_id: publicId
     });
 
-    // Log activity
-    if (userId) {
-      const activity = new Activity({
-        user: userId,
-        type: 'file_uploaded',
-        targetId: result.public_id,
-        targetType: 'file',
-        metadata: {
-          fileName: originalname,
-          fileType: typeValidation.type,
-          context: contextFolder,
-          fileSize: size
-        }
-      });
-      await activity.save();
-    }
-
     res.status(200).json({
       success: true,
       message: 'File uploaded successfully',
@@ -174,15 +156,20 @@ export const uploadMultipleFiles = async (req: AuthenticatedRequest, res: Respon
     res.status(200).json({
       success: true,
       message: 'Files uploaded successfully',
-      data: results.map(result => ({
-        url: result.secure_url,
-        publicId: result.public_id,
-        resourceType: result.resource_type,
-        format: result.format,
-        bytes: result.bytes,
-        width: result.width,
-        height: result.height
-      }))
+      data: (req.files as Express.Multer.File[]).map((file, index) => {
+        const result = results[index];
+        return {
+          url: result.secure_url,
+          publicId: result.public_id,
+          type: file.mimetype.startsWith('image/') ? 'image' : 'audio',
+          originalName: file.originalname,
+          resourceType: result.resource_type,
+          format: result.format,
+          bytes: result.bytes,
+          width: result.width,
+          height: result.height
+        };
+      })
     });
   } catch (error: any) {
     console.error('Multiple upload error:', error);
