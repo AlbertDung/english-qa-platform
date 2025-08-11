@@ -1,9 +1,20 @@
+// Load environment variables FIRST
+import dotenv from 'dotenv';
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
+
+// Import models to ensure they are registered
+import './models/User';
+import './models/Question';
+import './models/Answer';
+import './models/Vote';
+import './models/Activity';
+import './models/SavedContent';
 
 import connectDB from './utils/database';
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -15,9 +26,6 @@ import answerRoutes from './routes/answers';
 import voteRoutes from './routes/votes';
 import uploadRoutes from './routes/upload';
 import userRoutes from './routes/user';
-
-// Load environment variables
-dotenv.config();
 
 // Connect to database
 connectDB();
