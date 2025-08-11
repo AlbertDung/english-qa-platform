@@ -1,4 +1,4 @@
-# English Q&A Platform 🎓
+# English Q&A Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)](https://nodejs.org/)
@@ -8,100 +8,100 @@
 
 A modern, community-driven English learning platform where students and teachers can ask questions, provide answers, and learn together. Built with React, Node.js, and MongoDB for a seamless learning experience.
 
-🔗 **Live Demo**: [Coming Soon](#)
-📚 **Documentation**: [API Docs](./backend/API_DOCUMENTATION.md)
-🚀 **Deployment**: [Railway Backend](./RAILWAY_DEPLOYMENT_GUIDE.md) | [Vercel Frontend](#)
+**Live Demo**: [Coming Soon](#)
+**Documentation**: [API Docs](./backend/API_DOCUMENTATION.md)
+**Deployment**: [Railway Backend](./RAILWAY_DEPLOYMENT_GUIDE.md) | [Vercel Frontend](#)
 
-## ✨ Features
+## Features
 
-### 🎯 Core Learning Features
-- **📝 Question Management** - Ask, edit, and categorize English learning questions
-- **💡 Answer System** - Provide detailed answers with rich text formatting
-- **🏷️ Smart Categorization** - Grammar, Vocabulary, Pronunciation, Writing, Speaking, Reading, Listening
-- **⭐ Voting & Reputation** - Build credibility through helpful contributions
-- **✅ Best Answer Selection** - Mark the most helpful answer for each question
+### Core Learning Features
+- **Question Management** - Ask, edit, and categorize English learning questions
+- **Answer System** - Provide detailed answers with rich text formatting
+- **Smart Categorization** - Grammar, Vocabulary, Pronunciation, Writing, Speaking, Reading, Listening
+- **Voting & Reputation** - Build credibility through helpful contributions
+- **Best Answer Selection** - Mark the most helpful answer for each question
 
-### 🔐 User Management
-- **👤 Authentication** - Secure JWT-based login/registration
-- **👥 Role-Based Access** - Student, Teacher, and Admin roles
-- **📊 User Profiles** - Track learning progress and contributions
-- **🔒 Content Moderation** - Teachers can moderate content
+### User Management
+- **Authentication** - Secure JWT-based login/registration
+- **Role-Based Access** - Student, Teacher, and Admin roles
+- **User Profiles** - Track learning progress and contributions
+- **Content Moderation** - Teachers can moderate content
 
-### 🚀 Advanced Features
-- **🔍 Smart Search** - Find questions by category, difficulty, or keywords
-- **📱 Responsive Design** - Optimized for all devices
-- **🤖 AI Integration Ready** - Prepared for AI-powered learning features
-- **📁 File Uploads** - Support for images and documents
-- **📊 Activity Feed** - Track community engagement
+### Advanced Features
+- **Smart Search** - Find questions by category, difficulty, or keywords
+- **Responsive Design** - Optimized for all devices
+- **AI Integration Ready** - Prepared for AI-powered learning features
+- **File Uploads** - Support for images and documents
+- **Activity Feed** - Track community engagement
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- **⚛️ React 18** with TypeScript for type safety
-- **🎨 Tailwind CSS** for modern, responsive styling
-- **🔄 React Router** for seamless navigation
-- **📡 Axios** for reliable API communication
-- **⚡ Context API** for efficient state management
+- **React 18** with TypeScript for type safety
+- **Tailwind CSS** for modern, responsive styling
+- **React Router** for seamless navigation
+- **Axios** for reliable API communication
+- **Context API** for efficient state management
 
 ### Backend
-- **🟢 Node.js** with Express framework
-- **🔷 TypeScript** for robust backend development
-- **🍃 MongoDB** with Mongoose ODM
-- **🔐 JWT** for secure authentication
-- **🔒 bcryptjs** for password security
-- **🛡️ Security** - CORS, Helmet, Rate Limiting
+- **Node.js** with Express framework
+- **TypeScript** for robust backend development
+- **MongoDB** with Mongoose ODM
+- **JWT** for secure authentication
+- **bcryptjs** for password security
+- **Security** - CORS, Helmet, Rate Limiting
 
 ### Database & Services
-- **🗄️ MongoDB Atlas** - Cloud database hosting
-- **☁️ Cloudinary** - Image and file storage
-- **🤖 OpenAI/Google AI** - AI-powered features
-- **🚀 Railway** - Backend hosting
-- **⚡ Vercel** - Frontend hosting
+- **MongoDB Atlas** - Cloud database hosting
+- **Cloudinary** - Image and file storage
+- **OpenAI/Google AI** - AI-powered features
+- **Railway** - Backend hosting
+- **Vercel** - Frontend hosting
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 english-qa-platform/
-├── 📂 backend/                 # Node.js + Express API
-│   ├── 📂 src/
-│   │   ├── 🎮 controllers/     # Route handlers
-│   │   ├── 🗃️ models/         # MongoDB schemas
-│   │   ├── 🛣️ routes/         # API endpoints
-│   │   ├── 🛡️ middleware/     # Custom middleware
-│   │   ├── 🔧 services/        # Business logic
-│   │   ├── 🛠️ utils/          # Helper functions
-│   │   └── 🚀 server.ts        # Main server file
-│   ├── 📄 package.json
-│   ├── ⚙️ tsconfig.json
-│   └── 🔑 .env.example
-├── 📂 frontend/                # React + TypeScript App
-│   ├── 📂 src/
-│   │   ├── 🧩 components/      # Reusable UI components
-│   │   ├── 📄 pages/          # Page components
-│   │   ├── 🔄 contexts/       # React contexts
-│   │   ├── 📡 services/       # API services
-│   │   ├── 🏷️ types/          # TypeScript types
-│   │   └── 🎯 App.tsx         # Main app component
-│   ├── 📄 package.json
-│   ├── ⚙️ tsconfig.json
-│   └── 🎨 tailwind.config.js
-└── 📄 README.md
+├── backend/                 # Node.js + Express API
+│   ├── src/
+│   │   ├── controllers/     # Route handlers
+│   │   ├── models/         # MongoDB schemas
+│   │   ├── routes/         # API endpoints
+│   │   ├── middleware/     # Custom middleware
+│   │   ├── services/        # Business logic
+│   │   ├── utils/          # Helper functions
+│   │   └── server.ts        # Main server file
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── .env.example
+├── frontend/                # React + TypeScript App
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── contexts/       # React contexts
+│   │   ├── services/       # API services
+│   │   ├── types/          # TypeScript types
+│   │   └── App.tsx         # Main app component
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── tailwind.config.js
+└── README.md
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - **Node.js** (v16 or higher) - [Download here](https://nodejs.org/)
 - **MongoDB** - Local installation or [MongoDB Atlas](https://www.mongodb.com/atlas)
 - **Git** - [Download here](https://git-scm.com/)
 
-### 1️⃣ Clone the Repository
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/AlbertDung/english-qa-platform.git
 cd english-qa-platform
 ```
 
-### 2️⃣ Backend Setup
+### 2. Backend Setup
 
 ```bash
 # Navigate to backend directory
@@ -155,9 +155,9 @@ npm run build
 npm start
 ```
 
-✅ **Backend running on:** `http://localhost:5000`
+**Backend running on:** `http://localhost:5000`
 
-### 3️⃣ Frontend Setup
+### 3. Frontend Setup
 
 ```bash
 # Open new terminal and navigate to frontend directory
@@ -170,9 +170,9 @@ npm install
 npm start
 ```
 
-✅ **Frontend running on:** `http://localhost:3000`
+**Frontend running on:** `http://localhost:3000`
 
-### 4️⃣ Database Setup
+### 4. Database Setup
 
 #### Option A: Local MongoDB
 ```bash
@@ -194,7 +194,7 @@ sudo systemctl status mongodb
 3. Get connection string
 4. Update `MONGODB_URI` in your `.env` file
 
-## 📚 Available Scripts
+## Available Scripts
 
 ### Backend Scripts
 ```bash
@@ -213,7 +213,7 @@ npm test         # Run test suite
 npm run eject    # Eject from Create React App (not recommended)
 ```
 
-## 🌐 API Endpoints
+## API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
@@ -237,40 +237,40 @@ npm run eject    # Eject from Create React App (not recommended)
 - `POST /api/votes/questions/:id` - Vote on question
 - `POST /api/votes/answers/:id` - Vote on answer
 
-📖 **Full API Documentation:** [API_DOCUMENTATION.md](./backend/API_DOCUMENTATION.md)
+**Full API Documentation:** [API_DOCUMENTATION.md](./backend/API_DOCUMENTATION.md)
 
-## 🎯 Usage Examples
+## Usage Examples
 
 ### Sample Question Categories
-- **📚 Grammar**: "When do I use 'a' vs 'an'?"
-- **📖 Vocabulary**: "What's the difference between 'big' and 'large'?"
-- **🗣️ Pronunciation**: "How do I pronounce 'though'?"
-- **✍️ Writing**: "How can I improve my essay structure?"
-- **💬 Speaking**: "Tips for reducing my accent?"
+- **Grammar**: "When do I use 'a' vs 'an'?"
+- **Vocabulary**: "What's the difference between 'big' and 'large'?"
+- **Pronunciation**: "How do I pronounce 'though'?"
+- **Writing**: "How can I improve my essay structure?"
+- **Speaking**: "Tips for reducing my accent?"
 
 ### User Roles & Permissions
-- **👨‍🎓 Student**: Ask questions, answer questions, vote, build reputation
-- **👨‍🏫 Teacher**: All student permissions + content moderation, answer verification
-- **👨‍💼 Admin**: Full system access, user management, system configuration
+- **Student**: Ask questions, answer questions, vote, build reputation
+- **Teacher**: All student permissions + content moderation, answer verification
+- **Admin**: Full system access, user management, system configuration
 
-## 🚀 Deployment
+## Deployment
 
 ### Backend Deployment (Railway)
-📖 **Complete Guide:** [RAILWAY_DEPLOYMENT_GUIDE.md](./RAILWAY_DEPLOYMENT_GUIDE.md)
+**Complete Guide:** [RAILWAY_DEPLOYMENT_GUIDE.md](./RAILWAY_DEPLOYMENT_GUIDE.md)
 
 ### Frontend Deployment (Vercel)
-📖 **Complete Guide:** Coming Soon
+**Complete Guide:** Coming Soon
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
-### 🤖 AI Integration
+### AI Integration
 - AI-powered answer suggestions
 - Grammar checking for questions/answers
 - Automated content moderation
 - Personalized learning recommendations
 - Speech recognition for pronunciation
 
-### 🚀 Additional Features
+### Additional Features
 - Real-time notifications
 - Private messaging between users
 - Achievement badges and gamification
@@ -279,16 +279,16 @@ npm run eject    # Eject from Create React App (not recommended)
 - Audio/video content support
 - Multi-language support
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please read our [Contributing Guidelines](./CONTRIBUTING.md).
 
 ### How to Contribute
-1. 🍴 Fork the repository
-2. 🌿 Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. 💾 Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. 🚀 Push to the branch (`git push origin feature/AmazingFeature`)
-5. 🔄 Open a Pull Request
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ### Development Guidelines
 - Follow TypeScript best practices
@@ -297,18 +297,18 @@ We welcome contributions! Please read our [Contributing Guidelines](./CONTRIBUTI
 - Update documentation as needed
 - Follow the existing code style
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
-## 🆘 Support & Community
+## Support & Community
 
-- 🐛 **Bug Reports**: [Create an issue](https://github.com/AlbertDung/english-qa-platform/issues)
-- 💡 **Feature Requests**: [Create an issue](https://github.com/AlbertDung/english-qa-platform/issues)
-- 📖 **Documentation**: [API Docs](./backend/API_DOCUMENTATION.md)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/AlbertDung/english-qa-platform/discussions)
+- **Bug Reports**: [Create an issue](https://github.com/AlbertDung/english-qa-platform/issues)
+- **Feature Requests**: [Create an issue](https://github.com/AlbertDung/english-qa-platform/issues)
+- **Documentation**: [API Docs](./backend/API_DOCUMENTATION.md)
+- **Discussions**: [GitHub Discussions](https://github.com/AlbertDung/english-qa-platform/discussions)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - React team for the amazing framework
 - MongoDB team for the robust database
@@ -318,8 +318,8 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ---
 
-**🎓 Happy Learning! Let's make English learning accessible to everyone! 📚✨**
+**Happy Learning! Let's make English learning accessible to everyone!**
 
 <div align="center">
-  <sub>Built with ❤️ by the English Q&A Platform community</sub>
+  <sub>Built with love by the English Q&A Platform community</sub>
 </div>
