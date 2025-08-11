@@ -42,9 +42,8 @@ const AskQuestionPage: React.FC = () => {
       id: string;
       url: string;
       publicId: string;
-      filename: string;
       originalName: string;
-      fileType: 'image' | 'audio';
+      type: 'image' | 'audio';
       size: number;
     }>
   });
@@ -508,7 +507,7 @@ const AskQuestionPage: React.FC = () => {
                               {formData.attachments.map((attachment, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
                                   <div className="flex justify-center">
-                                    {attachment.fileType === 'image' ? (
+                                    {attachment.type === 'image' ? (
                                       <PhotoIcon className="w-5 h-5 text-blue-500" />
                                     ) : (
                                       <MusicalNoteIcon className="w-5 h-5 text-purple-500" />

@@ -16,7 +16,9 @@ import {
   BeakerIcon,
   AdjustmentsVerticalIcon,
   FireIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  PaperClipIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline';
 
 interface QuestionCardProps {
@@ -141,6 +143,47 @@ const QuestionCard: React.FC<QuestionCardProps> = ({ question }) => {
           : question.content
         }
       </p>
+
+      {/* Attachments */}
+      {question.attachments && question.attachments.length > 0 && (
+        <div className="mb-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <PaperClipIcon className="w-4 h-4 text-neutral-500" />
+            <span className="text-sm font-medium text-neutral-700">Attachments ({question.attachments.length})</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {question.attachments.slice(0, 4).map((attachment, index) => (
+              <div key={index} className="flex items-center p-2 bg-neutral-50 rounded-lg">
+                <div className="mr-2">
+                  {attachment.type === 'image' ? (
+                    <PhotoIcon className="w-4 h-4 text-blue-500" />
+                  ) : (
+                    <MusicalNoteIcon className="w-4 h-4 text-purple-500" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-neutral-700 truncate">
+                    {attachment.originalName}
+                  </p>
+                </div>
+                <a
+                  href={attachment.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-blue-600 hover:text-blue-800 text-xs"
+                >
+                  View
+                </a>
+              </div>
+            ))}
+            {question.attachments.length > 4 && (
+              <div className="px-3 py-2 bg-neutral-100 text-neutral-500 rounded-lg text-xs">
+                +{question.attachments.length - 4} more
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Tags */}
       {question.tags && question.tags.length > 0 && (

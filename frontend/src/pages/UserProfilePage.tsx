@@ -13,7 +13,8 @@ import {
   CheckIcon,
   XMarkIcon,
   EnvelopeIcon,
-  StarIcon
+  StarIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 
 const UserProfilePage: React.FC = () => {
@@ -26,17 +27,14 @@ const UserProfilePage: React.FC = () => {
       bio: '',
       location: '',
       website: '',
-      socialMedia: {
-        twitter: '',
-        linkedin: '',
-        github: ''
-      }
+      learningGoals: [] as string[],
+      nativeLanguage: '',
+      englishLevel: 'beginner' as 'beginner' | 'intermediate' | 'advanced'
     },
     preferences: {
-      theme: 'light' as 'light' | 'dark',
-      notifications: true,
-      language: 'en',
-      emailDigest: true
+      emailNotifications: true,
+      categories: [] as string[],
+      difficultyLevel: 'beginner'
     }
   });
 
@@ -47,17 +45,14 @@ const UserProfilePage: React.FC = () => {
           bio: user.profile?.bio || '',
           location: user.profile?.location || '',
           website: user.profile?.website || '',
-          socialMedia: {
-            twitter: user.profile?.socialMedia?.twitter || '',
-            linkedin: user.profile?.socialMedia?.linkedin || '',
-            github: user.profile?.socialMedia?.github || ''
-          }
+          learningGoals: user.profile?.learningGoals || [],
+          nativeLanguage: user.profile?.nativeLanguage || '',
+          englishLevel: user.profile?.englishLevel || 'beginner'
         },
         preferences: {
-          theme: user.preferences?.theme || 'light',
-          notifications: user.preferences?.notifications ?? true,
-          language: user.preferences?.language || 'en',
-          emailDigest: user.preferences?.emailDigest ?? true
+          emailNotifications: user.preferences?.emailNotifications ?? true,
+          categories: user.preferences?.categories || [],
+          difficultyLevel: user.preferences?.difficultyLevel || 'beginner'
         }
       });
     }
@@ -280,55 +275,104 @@ const UserProfilePage: React.FC = () => {
                   />
                 </div>
 
-                {/* Social Media */}
+                {/* Learning Goals */}
                 <div>
-                  <h3 className="text-lg font-medium text-neutral-900 mb-4">
-                    Social Media
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        Twitter
-                      </label>
-                      <input
-                        type="text"
-                        name="profile.socialMedia.twitter"
-                        value={formData.profile.socialMedia.twitter}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                        placeholder="@username"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        LinkedIn
-                      </label>
-                      <input
-                        type="text"
-                        name="profile.socialMedia.linkedin"
-                        value={formData.profile.socialMedia.linkedin}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                        placeholder="linkedin.com/in/username"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 mb-2">
-                        GitHub
-                      </label>
-                      <input
-                        type="text"
-                        name="profile.socialMedia.github"
-                        value={formData.profile.socialMedia.github}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                        placeholder="github.com/username"
-                      />
-                    </div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Learning Goals
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {formData.profile.learningGoals.map((goal, index) => (
+                      <div key={index} className="flex items-center">
+                        <input
+                          type="text"
+                          name={`profile.learningGoals.${index}`}
+                          value={goal}
+                          onChange={(e) => {
+                            const newGoals = [...formData.profile.learningGoals];
+                            newGoals[index] = e.target.value;
+                            setFormData(prev => ({
+                              ...prev,
+                              profile: {
+                                ...prev.profile,
+                                learningGoals: newGoals
+                              }
+                            }));
+                          }}
+                          disabled={!isEditing}
+                          className="flex-1 px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                          placeholder="e.g., Learn React, Master CSS"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newGoals = formData.profile.learningGoals.filter((_, i) => i !== index);
+                            setFormData(prev => ({
+                              ...prev,
+                              profile: {
+                                ...prev.profile,
+                                learningGoals: newGoals
+                              }
+                            }));
+                          }}
+                          disabled={!isEditing}
+                          className="ml-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          X
+                        </button>
+                      </div>
+                    ))}
+                    {isEditing && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            profile: {
+                              ...prev.profile,
+                              learningGoals: [...prev.profile.learningGoals, '']
+                            }
+                          }));
+                        }}
+                        className="inline-flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-all duration-200 transform hover:scale-105 shadow-sm"
+                      >
+                        <PlusIcon className="w-4 h-4 mr-2" /> Add Goal
+                      </button>
+                    )}
                   </div>
+                </div>
+
+                {/* Native Language */}
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    Native Language
+                  </label>
+                  <input
+                    type="text"
+                    name="profile.nativeLanguage"
+                    value={formData.profile.nativeLanguage}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    placeholder="e.g., English, Spanish"
+                  />
+                </div>
+
+                {/* English Level */}
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 mb-2">
+                    English Level
+                  </label>
+                  <select
+                    name="profile.englishLevel"
+                    value={formData.profile.englishLevel}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
                 </div>
 
                 {/* Preferences */}
@@ -343,8 +387,8 @@ const UserProfilePage: React.FC = () => {
                       </span>
                       <input
                         type="checkbox"
-                        name="preferences.notifications"
-                        checked={formData.preferences.notifications}
+                        name="preferences.emailNotifications"
+                        checked={formData.preferences.emailNotifications}
                         onChange={handleInputChange}
                         disabled={!isEditing}
                         className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded disabled:opacity-50"
@@ -352,16 +396,19 @@ const UserProfilePage: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-neutral-700">
-                        Weekly Email Digest
+                        Difficulty Level
                       </span>
-                      <input
-                        type="checkbox"
-                        name="preferences.emailDigest"
-                        checked={formData.preferences.emailDigest}
+                      <select
+                        name="preferences.difficultyLevel"
+                        value={formData.preferences.difficultyLevel}
                         onChange={handleInputChange}
                         disabled={!isEditing}
-                        className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-neutral-300 rounded disabled:opacity-50"
-                      />
+                        className="w-full px-3 py-2 border border-neutral-300 rounded-xl bg-white text-neutral-900 disabled:bg-neutral-50 disabled:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                      >
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                      </select>
                     </div>
                   </div>
                 </div>

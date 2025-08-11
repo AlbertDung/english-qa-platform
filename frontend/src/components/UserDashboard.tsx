@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { getUserStats, UserStats } from '../services/userService';
-import { User } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { getUserStats, UserStats, getUserActivity } from '../services/userService';
+import { User, Activity } from '../types';
 import {
   ChatBubbleLeftRightIcon,
   LightBulbIcon,
   HeartIcon,
   StarIcon,
   PlusIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  PencilIcon,
+  ChevronUpIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
 interface DashboardProps {
@@ -15,23 +19,97 @@ interface DashboardProps {
 }
 
 export const UserDashboard: React.FC<DashboardProps> = ({ user }) => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchData = async () => {
       try {
-        const userStats = await getUserStats();
+        const [userStats, activitiesResponse] = await Promise.all([
+          getUserStats(),
+          getUserActivity(user._id, 1, 5) // Get last 5 activities
+        ]);
+        
         setStats(userStats);
+        if (activitiesResponse.success && activitiesResponse.data?.activities) {
+          setRecentActivities(activitiesResponse.data.activities);
+        }
       } catch (error) {
-        console.error('Failed to fetch user stats:', error);
+        console.error('Failed to fetch dashboard data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStats();
-  }, []);
+    fetchData();
+  }, [user._id]);
+
+  const handleViewAllActivities = () => {
+    navigate('/profile?tab=activity');
+  };
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'question_created':
+        return <ChatBubbleLeftRightIcon className="w-5 h-5 text-green-500" />;
+      case 'answer_created':
+        return <LightBulbIcon className="w-5 h-5 text-blue-500" />;
+      case 'question_edited':
+      case 'answer_edited':
+        return <PencilIcon className="w-5 h-5 text-yellow-500" />;
+      case 'vote_cast':
+        return <ChevronUpIcon className="w-5 h-5 text-purple-500" />;
+      case 'question_saved':
+      case 'answer_saved':
+        return <HeartIcon className="w-5 h-5 text-red-500" />;
+      default:
+        return <ClockIcon className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
+  const getActivityMessage = (activity: Activity) => {
+    switch (activity.type) {
+      case 'question_created':
+        return 'Created a question';
+      case 'answer_created':
+        return 'Answered a question';
+      case 'question_edited':
+        return 'Edited a question';
+      case 'answer_edited':
+        return 'Edited an answer';
+      case 'vote_cast':
+        return `Voted on ${activity.targetType}`;
+      case 'question_saved':
+        return 'Saved a question';
+      case 'answer_saved':
+        return 'Saved an answer';
+      case 'question_unsaved':
+        return 'Removed question from saved';
+      case 'answer_unsaved':
+        return 'Removed answer from saved';
+      default:
+        return 'Activity performed';
+    }
+  };
+
+  const formatTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const activityDate = new Date(dateString);
+    const diffInMinutes = Math.floor((now.getTime() - activityDate.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays}d ago`;
+    
+    return activityDate.toLocaleDateString();
+  };
 
   if (loading) {
     return (
@@ -136,7 +214,10 @@ export const UserDashboard: React.FC<DashboardProps> = ({ user }) => {
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+          <button 
+            onClick={() => navigate('/ask-question')} 
+            className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+          >
             <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
               <PlusIcon className="h-5 w-5 text-primary-600" />
             </div>
@@ -146,7 +227,10 @@ export const UserDashboard: React.FC<DashboardProps> = ({ user }) => {
             </div>
           </button>
 
-          <button className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+          <button 
+            onClick={() => navigate('/')} 
+            className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+          >
             <div className="w-10 h-10 bg-success-100 rounded-xl flex items-center justify-center">
               <MagnifyingGlassIcon className="h-5 w-5 text-success-600" />
             </div>
@@ -156,7 +240,10 @@ export const UserDashboard: React.FC<DashboardProps> = ({ user }) => {
             </div>
           </button>
 
-          <button className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors">
+          <button 
+            onClick={() => navigate('/profile?tab=saved')} 
+            className="flex items-center space-x-3 p-4 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition-colors"
+          >
             <div className="w-10 h-10 bg-secondary-100 rounded-xl flex items-center justify-center">
               <HeartIcon className="h-5 w-5 text-secondary-600" />
             </div>
@@ -174,26 +261,34 @@ export const UserDashboard: React.FC<DashboardProps> = ({ user }) => {
           <h2 className="text-lg font-semibold text-neutral-900">
             Recent Activity
           </h2>
-          <button className="text-sm text-primary-600 hover:text-primary-700">
+          <button onClick={handleViewAllActivities} className="text-sm text-primary-600 hover:text-primary-700">
             View All
           </button>
         </div>
         <div className="space-y-3">
-          {stats && stats.recentActivities > 0 ? (
+          {recentActivities.length > 0 ? (
+            recentActivities.map((activity, index) => (
+              <div key={index} className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-neutral-100 rounded-full flex items-center justify-center text-neutral-600">
+                  {getActivityIcon(activity.type)}
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-neutral-900">
+                    {getActivityMessage(activity)}
+                  </p>
+                                     <p className="text-xs text-neutral-500">
+                     {formatTimeAgo(activity.createdAt)}
+                   </p>
+                </div>
+              </div>
+            ))
+          ) : (
             <div className="text-center py-8 text-neutral-500">
               <svg className="mx-auto h-12 w-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="mt-2">No recent activity to show</p>
               <p className="text-sm">Start by asking a question or answering others!</p>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-neutral-500">
-              <svg className="mx-auto h-12 w-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-              </svg>
-              <p className="mt-2">Welcome to the platform!</p>
-              <p className="text-sm">Your activity will appear here as you engage with the community.</p>
             </div>
           )}
         </div>
