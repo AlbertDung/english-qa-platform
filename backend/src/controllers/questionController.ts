@@ -8,10 +8,26 @@ import { sanitizeHtml } from '../utils/helpers';
 
 export const createQuestion = async (req: AuthRequest, res: Response) => {
   try {
-    const { title, content, tags, difficulty, category, attachments } = req.body;
+    const { title, content, tags, difficultyLevels, categories, attachments } = req.body;
 
-    if (!title || !content || !category) {
-      return res.status(400).json({ message: 'Title, content, and category are required' });
+    if (!title || !content || !categories || !Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: 'Title, content, and at least one category are required' });
+    }
+
+    // Validate categories
+    const validCategories = ['grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 'reading', 'listening', 'business', 'academic', 'casual', 'technical', 'other'];
+    const invalidCategories = categories.filter(cat => !validCategories.includes(cat));
+    if (invalidCategories.length > 0) {
+      return res.status(400).json({ message: `Invalid categories: ${invalidCategories.join(', ')}` });
+    }
+
+    // Validate difficulty levels if provided
+    if (difficultyLevels && Array.isArray(difficultyLevels)) {
+      const validDifficulties = ['beginner', 'intermediate', 'advanced', 'expert'];
+      const invalidDifficulties = difficultyLevels.filter(diff => !validDifficulties.includes(diff));
+      if (invalidDifficulties.length > 0) {
+        return res.status(400).json({ message: `Invalid difficulty levels: ${invalidDifficulties.join(', ')}` });
+      }
     }
 
     // Prepare question data
@@ -19,8 +35,8 @@ export const createQuestion = async (req: AuthRequest, res: Response) => {
       title,
       content: sanitizeHtml(content),
       tags: tags || [],
-      difficulty: difficulty || 'beginner',
-      category,
+      difficultyLevels: difficultyLevels || ['beginner'], // Default to beginner if none provided
+      categories,
       author: req.user!._id
     };
 
@@ -46,8 +62,8 @@ export const createQuestion = async (req: AuthRequest, res: Response) => {
       targetType: 'question',
       metadata: {
         title: question.title,
-        category: question.category,
-        difficulty: question.difficulty
+        categories: question.categories,
+        difficultyLevels: question.difficultyLevels
       }
     });
     await activity.save();
@@ -66,8 +82,8 @@ export const getQuestions = async (req: AuthRequest, res: Response) => {
     const {
       page = 1,
       limit = 10,
-      category,
-      difficulty,
+      categories,
+      difficultyLevels,
       sort = 'newest',
       search
     } = req.query;
@@ -78,8 +94,25 @@ export const getQuestions = async (req: AuthRequest, res: Response) => {
 
     // Build filter
     const filter: any = {};
-    if (category) filter.category = category;
-    if (difficulty) filter.difficulty = difficulty;
+    
+    // Handle multiple categories
+    if (categories) {
+      if (Array.isArray(categories)) {
+        filter.categories = { $in: categories };
+      } else {
+        filter.categories = { $in: [categories] };
+      }
+    }
+    
+    // Handle multiple difficulty levels
+    if (difficultyLevels) {
+      if (Array.isArray(difficultyLevels)) {
+        filter.difficultyLevels = { $in: difficultyLevels };
+      } else {
+        filter.difficultyLevels = { $in: [difficultyLevels] };
+      }
+    }
+    
     if (search) {
       filter.$text = { $search: search as string };
     }
@@ -160,7 +193,7 @@ export const getQuestion = async (req: AuthRequest, res: Response) => {
 export const updateQuestion = async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { title, content, tags, difficulty, category, editReason } = req.body;
+    const { title, content, tags, difficultyLevels, categories, editReason } = req.body;
 
     const question = await Question.findById(id);
 
@@ -175,6 +208,24 @@ export const updateQuestion = async (req: AuthRequest, res: Response) => {
 
     if (!canEdit) {
       return res.status(403).json({ message: 'Not authorized to update this question' });
+    }
+
+    // Validate categories if provided
+    if (categories && Array.isArray(categories)) {
+      const validCategories = ['grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 'reading', 'listening', 'business', 'academic', 'casual', 'technical', 'other'];
+      const invalidCategories = categories.filter(cat => !validCategories.includes(cat));
+      if (invalidCategories.length > 0) {
+        return res.status(400).json({ message: `Invalid categories: ${invalidCategories.join(', ')}` });
+      }
+    }
+
+    // Validate difficulty levels if provided
+    if (difficultyLevels && Array.isArray(difficultyLevels)) {
+      const validDifficulties = ['beginner', 'intermediate', 'advanced', 'expert'];
+      const invalidDifficulties = difficultyLevels.filter(diff => !validDifficulties.includes(diff));
+      if (invalidDifficulties.length > 0) {
+        return res.status(400).json({ message: `Invalid difficulty levels: ${invalidDifficulties.join(', ')}` });
+      }
     }
 
     // Save edit history if content is being changed
@@ -193,8 +244,8 @@ export const updateQuestion = async (req: AuthRequest, res: Response) => {
     if (title) question.title = title;
     if (content) question.content = sanitizeHtml(content);
     if (tags) question.tags = tags;
-    if (difficulty) question.difficulty = difficulty;
-    if (category) question.category = category;
+    if (difficultyLevels) question.difficultyLevels = difficultyLevels;
+    if (categories) question.categories = categories;
 
     await question.save();
     await question.populate([
