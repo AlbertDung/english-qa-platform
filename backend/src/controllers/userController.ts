@@ -412,21 +412,42 @@ export const getSavedContent = async (req: AuthenticatedRequest, res: Response) 
     const savedContent = await SavedContent.find(filter)
       .populate({
         path: 'contentId',
-        populate: {
-          path: 'author',
-          select: 'username avatar reputation'
-        }
+        populate: [
+          {
+            path: 'author',
+            select: 'username avatar reputation'
+          }
+        ]
       })
       .sort({ savedAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
+
+    // Manually populate the content based on contentType
+    const populatedSavedContent = await Promise.all(
+      savedContent.map(async (item) => {
+        let populatedContent;
+        if (item.contentType === 'question') {
+          populatedContent = await Question.findById(item.contentId)
+            .populate('author', 'username avatar reputation');
+        } else if (item.contentType === 'answer') {
+          populatedContent = await Answer.findById(item.contentId)
+            .populate('author', 'username avatar reputation');
+        }
+        
+        return {
+          ...item.toObject(),
+          populatedContent
+        };
+      })
+    );
 
     const total = await SavedContent.countDocuments(filter);
 
     res.status(200).json({
       success: true,
       data: {
-        savedContent,
+        savedContent: populatedSavedContent,
         pagination: {
           currentPage: pageNum,
           totalPages: Math.ceil(total / limitNum),
