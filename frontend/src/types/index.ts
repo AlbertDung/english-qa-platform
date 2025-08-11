@@ -35,8 +35,8 @@ export interface Question {
   viewCount: number;
   answers: Answer[];
   acceptedAnswer?: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  category: 'grammar' | 'vocabulary' | 'pronunciation' | 'writing' | 'speaking' | 'reading' | 'listening' | 'other';
+  categories: string[]; // Changed from single category to array
+  difficultyLevels: string[]; // Changed from single difficulty to array
   attachments?: FileAttachment[];
   createdAt: string;
   updatedAt: string;
