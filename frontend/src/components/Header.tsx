@@ -7,7 +7,8 @@ import {
   ArrowLeftOnRectangleIcon as LogoutIcon, 
   QuestionMarkCircleIcon, 
   HomeIcon, 
-  PlusIcon 
+  PlusIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 
 const Header: React.FC = () => {
@@ -59,6 +60,13 @@ const Header: React.FC = () => {
               >
                 <QuestionMarkCircleIcon className="w-4 h-4" />
                 <span>Questions</span>
+              </Link>
+              <Link
+                to="/exercises"
+                className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:text-primary-600 hover:bg-primary-50 transition-all duration-200"
+              >
+                <SparklesIcon className="w-4 h-4" />
+                <span>AI Exercises</span>
               </Link>
             </nav>
           </div>

@@ -15,6 +15,7 @@ import './models/Answer';
 import './models/Vote';
 import './models/Activity';
 import './models/SavedContent';
+import './models/Exercise';
 
 import connectDB from './utils/database';
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -26,6 +27,7 @@ import answerRoutes from './routes/answers';
 import voteRoutes from './routes/votes';
 import uploadRoutes from './routes/upload';
 import userRoutes from './routes/user';
+import exerciseRoutes from './routes/exercises';
 
 // Connect to database
 connectDB();
@@ -65,6 +67,7 @@ app.use('/api/answers', answerRoutes);
 app.use('/api/votes', voteRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/exercises', exerciseRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

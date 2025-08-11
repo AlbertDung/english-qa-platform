@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import QuestionDetailPage from './pages/QuestionDetailPage';
 import AskQuestionPage from './pages/AskQuestionPage';
 import UserProfilePage from './pages/UserProfilePage';
+import ExerciseGeneratorPage from './pages/ExerciseGeneratorPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
                 <Route path="/questions/:id" element={<QuestionDetailPage />} />
                 <Route path="/ask" element={<AskQuestionPage />} />
                 <Route path="/profile" element={<UserProfilePage />} />
+                <Route path="/exercises" element={<ExerciseGeneratorPage />} />
               </Routes>
             </main>
           </div>

@@ -2,9 +2,9 @@ import mongoose, { Document, Schema, Types } from 'mongoose';
 
 export interface IActivity extends Document {
   user: Types.ObjectId;
-  type: 'question_created' | 'answer_created' | 'question_edited' | 'answer_edited' | 'question_deleted' | 'answer_deleted' | 'vote_cast' | 'question_saved' | 'answer_saved' | 'question_unsaved' | 'answer_unsaved';
+  type: 'question_created' | 'answer_created' | 'question_edited' | 'answer_edited' | 'question_deleted' | 'answer_deleted' | 'vote_cast' | 'question_saved' | 'answer_saved' | 'question_unsaved' | 'answer_unsaved' | 'exercise_created' | 'exercise_completed';
   targetId: Types.ObjectId;
-  targetType: 'question' | 'answer' | 'vote';
+  targetType: 'question' | 'answer' | 'vote' | 'exercise';
   metadata?: {
     title?: string;
     previousTitle?: string;
@@ -35,7 +35,9 @@ const activitySchema = new Schema<IActivity>({
       'question_saved',
       'answer_saved',
       'question_unsaved',
-      'answer_unsaved'
+      'answer_unsaved',
+      'exercise_created',
+      'exercise_completed'
     ],
     required: true
   },
@@ -45,7 +47,7 @@ const activitySchema = new Schema<IActivity>({
   },
   targetType: {
     type: String,
-    enum: ['question', 'answer', 'vote'],
+    enum: ['question', 'answer', 'vote', 'exercise'],
     required: true
   },
   metadata: {
