@@ -3,8 +3,8 @@ export interface UploadResponse {
   data: {
     url: string;
     publicId: string;
-    filename: string;
-    fileType: 'image' | 'audio';
+    originalName: string;
+    type: 'image' | 'audio';
     size: number;
   };
   message?: string;
@@ -48,7 +48,7 @@ export const uploadMultipleFiles = async (
   files: File[],
   context?: string,
   onProgress?: (progress: number) => void
-): Promise<{ success: boolean; data: Array<{ url: string; publicId: string; filename: string; fileType: 'image' | 'audio'; size: number }> }> => {
+): Promise<{ success: boolean; data: Array<{ url: string; publicId: string; originalName: string; type: 'image' | 'audio'; size: number }> }> => {
   const formData = new FormData();
   files.forEach((file) => {
     formData.append('files', file);

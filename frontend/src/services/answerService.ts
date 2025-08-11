@@ -13,9 +13,8 @@ export const answerService = {
     attachments?: Array<{
       url: string;
       publicId: string;
-      filename: string;
       originalName: string;
-      fileType: 'image' | 'audio';
+      type: 'image' | 'audio';
       size: number;
     }>;
   }): Promise<{ success: boolean; answer: Answer }> => {

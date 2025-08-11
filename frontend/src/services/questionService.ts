@@ -27,8 +27,9 @@ export const questionService = {
     category: string;
     attachments?: Array<{
       url: string;
-      filename: string;
-      fileType: 'image' | 'audio';
+      publicId: string;
+      originalName: string;
+      type: 'image' | 'audio';
       size?: number;
     }>;
   }): Promise<{ success: boolean; question: Question }> => {
@@ -46,8 +47,9 @@ export const questionService = {
       category?: string;
       attachments?: Array<{
         url: string;
-        filename: string;
-        fileType: 'image' | 'audio';
+        publicId: string;
+        originalName: string;
+        type: 'image' | 'audio';
         size?: number;
       }>;
     }
