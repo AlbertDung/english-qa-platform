@@ -8,9 +8,8 @@ interface FileAttachment {
   file?: File;
   url: string;
   publicId: string;
-  filename: string;
   originalName: string;
-  fileType: 'image' | 'audio';
+  type: 'image' | 'audio';
   size: number;
   isUploading?: boolean;
 }
@@ -37,6 +36,10 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
   const { addToast } = useToast();
 
   const getFileIconComponent = (fileType: string) => {
+    if (!fileType) {
+      return <PaperClipIcon className="w-5 h-5 text-gray-500" />;
+    }
+    
     if (fileType.startsWith('image/')) {
       return <PhotoIcon className="w-5 h-5 text-blue-500" />;
     } else if (fileType.startsWith('audio/')) {
@@ -78,9 +81,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
           file,
           url: '',
           publicId: '',
-          filename: file.name,
           originalName: file.name,
-          fileType: file.type.startsWith('image/') ? 'image' : 'audio',
+          type: file.type.startsWith('image/') ? 'image' : 'audio',
           size: file.size,
           isUploading: true
         };
@@ -94,9 +96,8 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
             id: response.data.publicId,
             url: response.data.url,
             publicId: response.data.publicId,
-            filename: response.data.filename,
-            originalName: file.name,
-            fileType: response.data.fileType,
+            originalName: response.data.originalName || file.name,
+            type: response.data.type,
             size: response.data.size,
             isUploading: false
           };
@@ -242,7 +243,7 @@ const EnhancedFileUpload: React.FC<EnhancedFileUploadProps> = ({
               >
                 <div className="flex items-center space-x-3">
                   <div>
-                    {getFileIconComponent(attachment.fileType)}
+                    {getFileIconComponent(attachment.type || attachment.file?.type || 'unknown')}
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
