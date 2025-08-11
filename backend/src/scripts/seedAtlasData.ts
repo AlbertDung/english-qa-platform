@@ -1,6 +1,15 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+
+// Import models to ensure they are registered
+import '../models/User';
+import '../models/Question';
+import '../models/Answer';
+import '../models/Vote';
+import '../models/Activity';
+import '../models/SavedContent';
+
 import User from '../models/User';
 import Question from '../models/Question';
 import Answer from '../models/Answer';
