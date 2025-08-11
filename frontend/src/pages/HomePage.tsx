@@ -33,43 +33,59 @@ const HomePage: React.FC = () => {
   const [filters, setFilters] = useState({
     category: '',
     difficulty: '',
-    sort: 'newest',
-    search: ''
+    search: '',
+    sort: 'newest'
   });
 
+  const availableCategories = [
+    'grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 
+    'reading', 'listening', 'business', 'academic', 'casual', 'technical', 'other'
+  ];
+
+  const availableDifficulties = [
+    'beginner', 'intermediate', 'advanced', 'expert'
+  ];
+
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await questionService.getQuestions(filters);
-        setQuestions(response.questions);
-      } catch (error: any) {
-        setError('Failed to fetch questions');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchData();
+    fetchQuestions();
   }, [filters]);
 
   const fetchQuestions = async () => {
     try {
       setLoading(true);
-      const response = await questionService.getQuestions(filters);
+      const params = new URLSearchParams();
+      
+      if (filters.category) {
+        params.append('categories', filters.category);
+      }
+      if (filters.difficulty) {
+        params.append('difficultyLevels', filters.difficulty);
+      }
+      if (filters.search) {
+        params.append('search', filters.search);
+      }
+      if (filters.sort) {
+        params.append('sort', filters.sort);
+      }
+      
+      const response = await questionService.getQuestions({
+        page: 1,
+        limit: 10,
+        category: filters.category || undefined,
+        difficulty: filters.difficulty || undefined,
+        search: filters.search || undefined,
+        sort: filters.sort as any
+      });
       setQuestions(response.questions);
-    } catch (error: any) {
-      setError('Failed to fetch questions');
+    } catch (error) {
+      console.error('Failed to fetch questions:', error);
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value
-    }));
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
