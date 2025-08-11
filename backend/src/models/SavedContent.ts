@@ -19,8 +19,7 @@ const savedContentSchema = new Schema<ISavedContent>({
   },
   contentId: {
     type: Schema.Types.ObjectId,
-    required: true,
-    refPath: 'contentType'
+    required: true
   },
   contentType: {
     type: String,
