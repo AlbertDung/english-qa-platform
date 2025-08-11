@@ -25,7 +25,12 @@ import {
   AdjustmentsVerticalIcon,
   FireIcon,
   BookOpenIcon,
-  PhotoIcon
+  PhotoIcon,
+  AcademicCapIcon,
+  BuildingOfficeIcon,
+  UserGroupIcon,
+  CogIcon,
+  DocumentTextIcon as DocIcon
 } from '@heroicons/react/24/outline';
 
 const AskQuestionPage: React.FC = () => {
@@ -35,9 +40,9 @@ const AskQuestionPage: React.FC = () => {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    category: '',
-    difficulty: '',
     tags: '',
+    difficultyLevels: [] as string[],
+    categories: [] as string[],
     attachments: [] as Array<{
       id: string;
       url: string;
@@ -52,6 +57,8 @@ const AskQuestionPage: React.FC = () => {
   const [error, setError] = useState('');
   const [uploadError, setUploadError] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedMedia, setSelectedMedia] = useState<{ url: string; type: string; originalName: string } | null>(null);
+  const [showMediaModal, setShowMediaModal] = useState(false);
 
   // Redirect if not authenticated
   React.useEffect(() => {
@@ -60,21 +67,13 @@ const AskQuestionPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const categories = [
-    { value: 'grammar', label: 'Grammar', icon: PencilIcon, description: 'Sentence structure, tenses, parts of speech' },
-    { value: 'vocabulary', label: 'Vocabulary', icon: BookOpenIcon, description: 'Word meanings, synonyms, usage' },
-    { value: 'pronunciation', label: 'Pronunciation', icon: SpeakerWaveIcon, description: 'How to say words correctly' },
-    { value: 'writing', label: 'Writing', icon: PencilIcon, description: 'Essays, emails, creative writing' },
-    { value: 'speaking', label: 'Speaking', icon: ChatBubbleOvalLeftEllipsisIcon, description: 'Conversation, presentations, fluency' },
-    { value: 'reading', label: 'Reading', icon: EyeIcon, description: 'Comprehension, literature, analysis' },
-    { value: 'listening', label: 'Listening', icon: MusicalNoteIcon, description: 'Understanding audio, accents' },
-    { value: 'other', label: 'Other', icon: LanguageIcon, description: 'General English questions' }
+  const availableCategories = [
+    'grammar', 'vocabulary', 'pronunciation', 'writing', 'speaking', 
+    'reading', 'listening', 'business', 'academic', 'casual', 'technical', 'other'
   ];
 
-  const difficulties = [
-    { value: 'beginner', label: 'Beginner', icon: BeakerIcon, description: 'Just starting to learn English' },
-    { value: 'intermediate', label: 'Intermediate', icon: AdjustmentsVerticalIcon, description: 'Can handle everyday conversations' },
-    { value: 'advanced', label: 'Advanced', icon: FireIcon, description: 'Fluent with complex topics' }
+  const availableDifficultyLevels = [
+    'beginner', 'intermediate', 'advanced', 'expert'
   ];
 
   const steps = [
@@ -85,12 +84,28 @@ const AskQuestionPage: React.FC = () => {
     { title: 'Review & Post', icon: CheckCircleIcon }
   ];
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+  const handleCategoryToggle = (category: string) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      categories: prev.categories.includes(category)
+        ? prev.categories.filter(c => c !== category)
+        : [...prev.categories, category]
     }));
+  };
+
+  const handleDifficultyToggle = (difficulty: string) => {
+    setFormData(prev => ({
+      ...prev,
+      difficultyLevels: prev.difficultyLevels.includes(difficulty)
+        ? prev.difficultyLevels.filter(d => d !== difficulty)
+        : [...prev.difficultyLevels, difficulty]
+    }));
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setError('');
   };
 
   const handleFilesChange = (files: any[]) => {
@@ -105,30 +120,33 @@ const AskQuestionPage: React.FC = () => {
     e.preventDefault();
     setError('');
 
-    if (!formData.title.trim() || !formData.content.trim() || !formData.category || !formData.difficulty) {
-      setError('Please fill in all required fields');
+    if (!formData.title.trim() || !formData.content.trim() || formData.categories.length === 0 || formData.difficultyLevels.length === 0) {
+      setError('Please select at least one category and one difficulty level');
       return;
     }
 
     try {
       setSubmitting(true);
-      
-      // Convert tags string to array
-      const tags = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-      
-      const response = await questionService.createQuestion({
+      const tags = formData.tags ? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+
+      const result = await questionService.createQuestion({
         title: formData.title.trim(),
         content: formData.content.trim(),
-        category: formData.category as any,
-        difficulty: formData.difficulty as any,
+        categories: formData.categories,
+        difficultyLevels: formData.difficultyLevels,
         tags,
         attachments: formData.attachments
       });
 
-      // Redirect to the newly created question
-      navigate(`/questions/${response.question._id}`);
+      if (result.success) {
+        // Assuming addToast is available from a context or passed as a prop
+        // For now, we'll just navigate
+        navigate(`/question/${result.question._id}`);
+      }
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Failed to create question');
+      setError(error.response?.data?.message || 'Failed to post question');
+      // Assuming addToast is available from a context or passed as a prop
+      // For now, we'll just set error
     } finally {
       setSubmitting(false);
     }
@@ -151,7 +169,7 @@ const AskQuestionPage: React.FC = () => {
       case 0: return formData.title.trim().length > 0;
       case 1: return formData.content.trim().length > 0;
       case 2: return true; // Attachments are optional
-      case 3: return formData.category && formData.difficulty;
+      case 3: return formData.categories.length > 0 && formData.difficultyLevels.length > 0;
       case 4: return true;
       default: return false;
     }
@@ -366,6 +384,56 @@ const AskQuestionPage: React.FC = () => {
                         className="w-full"
                       />
 
+                      {/* Preview of uploaded files */}
+                      {formData.attachments.length > 0 && (
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                          <h4 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
+                            <PaperClipIcon className="w-4 h-4 mr-2 text-gray-500" />
+                            Uploaded Files ({formData.attachments.length})
+                          </h4>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {formData.attachments.map((attachment, index) => (
+                              <div key={index} className="group bg-white hover:bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                                <div className="flex items-start space-x-3">
+                                  <div className="flex-shrink-0">
+                                    {attachment.type === 'image' ? (
+                                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <PhotoIcon className="w-5 h-5 text-blue-600" />
+                                      </div>
+                                    ) : (
+                                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <MusicalNoteIcon className="w-5 h-5 text-purple-600" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                                      {attachment.originalName}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      {attachment.type === 'image' ? 'Image file' : 'Audio file'} • {(attachment.size / 1024 / 1024).toFixed(2)} MB
+                                    </p>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedMedia({
+                                        url: attachment.url,
+                                        type: attachment.type,
+                                        originalName: attachment.originalName
+                                      });
+                                      setShowMediaModal(true);
+                                    }}
+                                    className="flex-shrink-0 px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors duration-200 hover:scale-105 transform"
+                                  >
+                                    View
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {uploadError && (
                         <div className="bg-error-50 border border-error-200 rounded-2xl p-4">
                           <div className="flex items-center space-x-3">
@@ -397,53 +465,117 @@ const AskQuestionPage: React.FC = () => {
                     <div>
                       <h3 className="text-lg font-semibold text-neutral-900 mb-4">Category</h3>
                       <div className="grid grid-cols-2 gap-3">
-                        {categories.map((category) => (
-                          <button
-                            key={category.value}
-                            type="button"
-                            onClick={() => setFormData({...formData, category: category.value})}
-                            className={`p-4 rounded-xl border-2 transition-all text-left hover:scale-105 ${
-                              formData.category === category.value 
-                                ? 'border-primary-300 bg-primary-50 shadow-medium' 
-                                : 'border-neutral-200 hover:border-neutral-300 bg-white'
-                            }`}
-                          >
-                            <div className="flex items-center space-x-3 mb-2">
-                              <div className="p-2 bg-primary-100 rounded-lg">
-                                <category.icon className="w-6 h-6 text-primary-600" />
+                        {availableCategories.map((category) => {
+                          const getCategoryIcon = (cat: string) => {
+                            switch (cat) {
+                              case 'grammar': return PencilIcon;
+                              case 'vocabulary': return DocumentTextIcon;
+                              case 'pronunciation': return SpeakerWaveIcon;
+                              case 'writing': return PencilIcon;
+                              case 'speaking': return ChatBubbleOvalLeftEllipsisIcon;
+                              case 'reading': return BookOpenIcon;
+                              case 'listening': return MusicalNoteIcon;
+                              case 'business': return BuildingOfficeIcon;
+                              case 'academic': return AcademicCapIcon;
+                              case 'casual': return UserGroupIcon;
+                              case 'technical': return CogIcon;
+                              default: return LanguageIcon;
+                            }
+                          };
+                          
+                          const getCategoryColor = (cat: string) => {
+                            switch (cat) {
+                              case 'grammar': return 'from-blue-400 to-blue-600';
+                              case 'vocabulary': return 'from-purple-400 to-purple-600';
+                              case 'pronunciation': return 'from-pink-400 to-pink-600';
+                              case 'writing': return 'from-indigo-400 to-indigo-600';
+                              case 'speaking': return 'from-orange-400 to-orange-600';
+                              case 'reading': return 'from-green-400 to-green-600';
+                              case 'listening': return 'from-teal-400 to-teal-600';
+                              case 'business': return 'from-gray-400 to-gray-600';
+                              case 'academic': return 'from-red-400 to-red-600';
+                              case 'casual': return 'from-yellow-400 to-yellow-600';
+                              case 'technical': return 'from-blue-400 to-blue-600';
+                              default: return 'from-neutral-400 to-neutral-600';
+                            }
+                          };
+                          
+                          const IconComponent = getCategoryIcon(category);
+                          const colorClass = getCategoryColor(category);
+                          
+                          return (
+                            <button
+                              key={category}
+                              type="button"
+                              onClick={() => handleCategoryToggle(category)}
+                              className={`p-4 rounded-xl border-2 transition-all text-left hover:scale-105 group ${
+                                formData.categories.includes(category) 
+                                  ? 'border-primary-300 bg-primary-50 shadow-medium' 
+                                  : 'border-neutral-200 hover:border-neutral-300 bg-white hover:shadow-medium'
+                              }`}
+                            >
+                              <div className="flex items-center space-x-3 mb-2">
+                                <div className={`p-3 bg-gradient-to-br ${colorClass} rounded-xl group-hover:scale-110 transition-transform`}>
+                                  <IconComponent className="w-6 h-6 text-white" />
+                                </div>
+                                <span className="font-semibold text-neutral-900 capitalize">{category}</span>
                               </div>
-                              <span className="font-semibold text-neutral-900">{category.label}</span>
-                            </div>
-                            <p className="text-xs text-neutral-600">{category.description}</p>
-                          </button>
-                        ))}
+                              <p className="text-xs text-neutral-600">General category for {category}</p>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
                     {/* Difficulty Selection */}
                     <div>
                       <h3 className="text-lg font-semibold text-neutral-900 mb-4">Difficulty Level</h3>
-                      <div className="grid grid-cols-3 gap-3">
-                        {difficulties.map((difficulty) => (
-                          <button
-                            key={difficulty.value}
-                            type="button"
-                            onClick={() => setFormData({...formData, difficulty: difficulty.value})}
-                            className={`p-4 rounded-xl border-2 transition-all text-center hover:scale-105 ${
-                              formData.difficulty === difficulty.value 
-                                ? 'border-secondary-300 bg-secondary-50 shadow-medium' 
-                                : 'border-neutral-200 hover:border-neutral-300 bg-white'
-                            }`}
-                          >
-                            <div className="flex justify-center mb-2">
-                              <div className="p-3 bg-secondary-100 rounded-xl">
-                                <difficulty.icon className="w-8 h-8 text-secondary-600" />
+                      <div className="grid grid-cols-2 gap-3">
+                        {availableDifficultyLevels.map((difficulty) => {
+                          const getDifficultyIcon = (diff: string) => {
+                            switch (diff) {
+                              case 'beginner': return BeakerIcon;
+                              case 'intermediate': return AdjustmentsVerticalIcon;
+                              case 'advanced': return FireIcon;
+                              case 'expert': return AcademicCapIcon;
+                              default: return BeakerIcon;
+                            }
+                          };
+                          
+                          const getDifficultyColor = (diff: string) => {
+                            switch (diff) {
+                              case 'beginner': return 'from-green-400 to-green-600';
+                              case 'intermediate': return 'from-yellow-400 to-yellow-600';
+                              case 'advanced': return 'from-orange-400 to-orange-600';
+                              case 'expert': return 'from-purple-400 to-purple-600';
+                              default: return 'from-neutral-400 to-neutral-600';
+                            }
+                          };
+                          
+                          const IconComponent = getDifficultyIcon(difficulty);
+                          const colorClass = getDifficultyColor(difficulty);
+                          
+                          return (
+                            <button
+                              key={difficulty}
+                              type="button"
+                              onClick={() => handleDifficultyToggle(difficulty)}
+                              className={`p-4 rounded-xl border-2 transition-all text-center hover:scale-105 group ${
+                                formData.difficultyLevels.includes(difficulty) 
+                                  ? 'border-secondary-300 bg-secondary-50 shadow-medium' 
+                                  : 'border-neutral-200 hover:border-neutral-300 bg-white hover:shadow-medium'
+                              }`}
+                            >
+                              <div className="flex justify-center mb-3">
+                                <div className={`p-3 bg-gradient-to-br ${colorClass} rounded-xl group-hover:scale-110 transition-transform`}>
+                                  <IconComponent className="w-8 h-8 text-white" />
+                                </div>
                               </div>
-                            </div>
-                            <div className="font-semibold text-neutral-900 mb-1">{difficulty.label}</div>
-                            <p className="text-xs text-neutral-600">{difficulty.description}</p>
-                          </button>
-                        ))}
+                              <div className="font-semibold text-neutral-900 mb-1 capitalize">{difficulty}</div>
+                              <p className="text-xs text-neutral-600">Level of difficulty</p>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -503,19 +635,42 @@ const AskQuestionPage: React.FC = () => {
                         {formData.attachments.length > 0 && (
                           <div>
                             <h4 className="font-semibold text-neutral-700 mb-2">Attachments:</h4>
-                            <div className="bg-white rounded-xl p-4 border border-neutral-200 space-y-2">
+                            <div className="bg-white rounded-xl p-4 border border-neutral-200 space-y-3">
                               {formData.attachments.map((attachment, index) => (
-                                <div key={index} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                                  <div className="flex justify-center">
-                                    {attachment.type === 'image' ? (
-                                      <PhotoIcon className="w-5 h-5 text-blue-500" />
-                                    ) : (
-                                      <MusicalNoteIcon className="w-5 h-5 text-purple-500" />
-                                    )}
-                                  </div>
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-900">{attachment.originalName}</p>
-                                    <p className="text-xs text-gray-500">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
+                                <div key={index} className="group bg-gray-50 hover:bg-gray-100 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-all duration-200">
+                                  <div className="flex items-start space-x-3">
+                                    <div className="flex-shrink-0">
+                                      {attachment.type === 'image' ? (
+                                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                          <PhotoIcon className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                      ) : (
+                                        <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                          <MusicalNoteIcon className="w-6 h-6 text-purple-600" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                                        {attachment.originalName}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        {attachment.type === 'image' ? 'Image file' : 'Audio file'} • {(attachment.size / 1024 / 1024).toFixed(2)} MB
+                                      </p>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedMedia({
+                                          url: attachment.url,
+                                          type: attachment.type,
+                                          originalName: attachment.originalName
+                                        });
+                                        setShowMediaModal(true);
+                                      }}
+                                      className="flex-shrink-0 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors duration-200 hover:scale-105 transform"
+                                    >
+                                      View
+                                    </button>
                                   </div>
                                 </div>
                               ))}
@@ -526,15 +681,23 @@ const AskQuestionPage: React.FC = () => {
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-2">
                             <span className="text-sm font-medium text-neutral-700">Category:</span>
-                            <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-                              {categories.find(c => c.value === formData.category)?.label}
-                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {formData.categories.map((category, index) => (
+                                <span key={index} className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
+                                  {category}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                           <div className="flex items-center space-x-2">
                             <span className="text-sm font-medium text-neutral-700">Level:</span>
-                            <span className="px-3 py-1 bg-secondary-100 text-secondary-700 rounded-full text-sm font-medium">
-                              {difficulties.find(d => d.value === formData.difficulty)?.label}
-                            </span>
+                            <div className="flex flex-wrap gap-2">
+                              {formData.difficultyLevels.map((difficulty, index) => (
+                                <span key={index} className="px-3 py-1 bg-secondary-100 text-secondary-700 rounded-full text-sm font-medium">
+                                  {difficulty}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
 
@@ -599,6 +762,85 @@ const AskQuestionPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {/* Media Modal */}
+      {showMediaModal && selectedMedia && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center space-x-3">
+                {selectedMedia.type === 'image' ? (
+                  <PhotoIcon className="w-6 h-6 text-blue-600" />
+                ) : (
+                  <MusicalNoteIcon className="w-6 h-6 text-purple-600" />
+                )}
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {selectedMedia.originalName}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowMediaModal(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6 max-h-[70vh] overflow-auto">
+              {selectedMedia.type === 'image' ? (
+                <div className="flex justify-center">
+                  <img
+                    src={selectedMedia.url}
+                    alt={selectedMedia.originalName}
+                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                    style={{ maxHeight: '60vh' }}
+                  />
+                </div>
+              ) : selectedMedia.type === 'audio' ? (
+                <div className="flex flex-col items-center space-y-6">
+                  <div className="w-32 h-32 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                    <MusicalNoteIcon className="w-16 h-16 text-white" />
+                  </div>
+                  <div className="text-center">
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">Audio Player</h4>
+                    <p className="text-sm text-gray-600 mb-4">{selectedMedia.originalName}</p>
+                    <audio 
+                      controls 
+                      className="w-full max-w-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded-lg"
+                      preload="metadata"
+                    >
+                      <source src={selectedMedia.url} type="audio/mpeg" />
+                      <source src={selectedMedia.url} type="audio/wav" />
+                      <source src={selectedMedia.url} type="audio/ogg" />
+                      Your browser does not support the audio element.
+                    </audio>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center text-gray-500">
+                  <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <DocIcon className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <p className="text-lg font-medium mb-2">Unsupported media type</p>
+                  <p className="text-sm mb-4">This file type cannot be previewed directly.</p>
+                  <a
+                    href={selectedMedia.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Open in new tab
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
