@@ -151,7 +151,7 @@ const HomePage: React.FC = () => {
                 <ChatBubbleLeftRightIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                {/* <p className="text-2xl font-bold text-neutral-900">{questions.length}</p> */}
+                <p className="text-2xl font-bold text-neutral-900">{questions?.length || 0}</p>
                 <p className="text-neutral-600">Active Questions</p>
               </div>
             </div>
@@ -163,9 +163,9 @@ const HomePage: React.FC = () => {
                 <BookOpenIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-neutral-900">
-                  {questions.filter(q => q.acceptedAnswer).length}
-                </p>
+                                  <p className="text-2xl font-bold text-neutral-900">
+                    {questions?.filter(q => q.acceptedAnswer)?.length || 0}
+                  </p>
                 <p className="text-neutral-600">Solved Questions</p>
               </div>
             </div>
@@ -312,7 +312,7 @@ const HomePage: React.FC = () => {
                   {filters.search ? `Search Results` : 'Recent Questions'}
                 </h2>
                 <p className="text-neutral-600 mt-1">
-                  {questions.length} question{questions.length !== 1 ? 's' : ''} found
+                  {questions?.length || 0} question{(questions?.length || 0) !== 1 ? 's' : ''} found
                 </p>
               </div>
             </div>
@@ -337,7 +337,7 @@ const HomePage: React.FC = () => {
                   Try Again
                 </button>
               </div>
-            ) : questions.length === 0 ? (
+                          ) : (questions?.length || 0) === 0 ? (
               <div className="text-center py-16 bg-white rounded-2xl border border-neutral-200">
                 <div className="p-4 bg-primary-50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <BookOpenIcon className="w-8 h-8 text-primary-600" />
@@ -359,7 +359,7 @@ const HomePage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {questions.map((question, index) => (
+                {questions?.map((question, index) => (
                   <div key={question._id} className="animate-slide-up" style={{ animationDelay: `${index * 0.1}s` }}>
                     <QuestionCard question={question} />
                   </div>
