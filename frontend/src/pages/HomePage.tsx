@@ -151,7 +151,7 @@ const HomePage: React.FC = () => {
                 <ChatBubbleLeftRightIcon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-neutral-900">{questions.length}</p>
+                {/* <p className="text-2xl font-bold text-neutral-900">{questions.length}</p> */}
                 <p className="text-neutral-600">Active Questions</p>
               </div>
             </div>
