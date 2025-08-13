@@ -33,7 +33,7 @@ The English Q&A Platform is a full-stack web application that provides a collabo
 - **API Architecture** - RESTful API with proper error handling and validation
 - **Security Implementation** - CORS, JWT authentication, password hashing
 - **Performance Optimization** - Efficient data fetching and state management
-
+<!-- 
 ## 🚀 **Live Deployment Status**
 
 | Component | Status | URL | Technology |
@@ -41,7 +41,7 @@ The English Q&A Platform is a full-stack web application that provides a collabo
 | **Frontend** | ✅ Live | [https://englishqnaplatform.vercel.app/](https://englishqnaplatform.vercel.app/) | React + TypeScript + Tailwind CSS |
 | **Backend API** | ✅ Live | [https://backendeqp-production-3b8f.up.railway.app/](https://backendeqp-production-3b8f.up.railway.app/) | Node.js + Express + TypeScript |
 | **Database** | ✅ Connected | MongoDB Atlas | Cloud-hosted MongoDB |
-| **File Storage** | ✅ Ready | Cloudinary | Image and file hosting |
+| **File Storage** | ✅ Ready | Cloudinary | Image and file hosting | -->
 
 ## 🛠️ **Technology Stack**
 
@@ -102,64 +102,6 @@ The English Q&A Platform is a full-stack web application that provides a collabo
 - **User Dashboard** - Personalized learning progress tracking
 - **Content Saving** - Bookmark questions and answers for later review
 - **Multi-language Ready** - Architecture prepared for internationalization
-
-## 🏗️ **Project Architecture**
-
-```
-english-qa-platform/
-├── frontend/                 # React + TypeScript Application
-│   ├── src/
-│   │   ├── components/       # Reusable UI components
-│   │   │   ├── QuestionCard.tsx      # Question display component
-│   │   │   ├── AnswerCard.tsx        # Answer display component
-│   │   │   ├── Header.tsx            # Navigation header
-│   │   │   ├── LoadingSpinner.tsx    # Loading states
-│   │   │   └── EnhancedFileUpload.tsx # File upload component
-│   │   ├── pages/            # Page components
-│   │   │   ├── HomePage.tsx          # Main landing page
-│   │   │   ├── AskQuestionPage.tsx   # Question creation
-│   │   │   ├── QuestionDetailPage.tsx # Question view
-│   │   │   ├── Login.tsx             # Authentication
-│   │   │   └── UserProfilePage.tsx   # User dashboard
-│   │   ├── services/         # API communication
-│   │   │   ├── api.ts                # Base API configuration
-│   │   │   ├── questionService.ts    # Question API calls
-│   │   │   ├── authService.ts        # Authentication API
-│   │   │   └── uploadService.ts      # File upload API
-│   │   ├── contexts/         # React contexts
-│   │   │   ├── AuthContext.tsx       # Authentication state
-│   │   │   └── ToastContext.tsx      # Notification system
-│   │   └── types/            # TypeScript type definitions
-│   ├── public/               # Static assets
-│   └── package.json          # Frontend dependencies
-├── backend/                  # Node.js + Express API
-│   ├── src/
-│   │   ├── controllers/      # Route handlers
-│   │   │   ├── questionController.ts  # Question logic
-│   │   │   ├── answerController.ts    # Answer logic
-│   │   │   ├── authController.ts      # Authentication logic
-│   │   │   └── userController.ts      # User management
-│   │   ├── models/           # MongoDB schemas
-│   │   │   ├── Question.ts            # Question data model
-│   │   │   ├── Answer.ts              # Answer data model
-│   │   │   ├── User.ts                # User data model
-│   │   │   └── Vote.ts                # Voting system model
-│   │   ├── routes/           # API endpoints
-│   │   │   ├── questions.ts           # Question routes
-│   │   │   ├── answers.ts             # Answer routes
-│   │   │   ├── auth.ts                # Authentication routes
-│   │   │   └── users.ts               # User routes
-│   │   ├── middleware/       # Custom middleware
-│   │   │   ├── auth.ts                # JWT authentication
-│   │   │   └── errorHandler.ts        # Error handling
-│   │   ├── services/         # Business logic
-│   │   │   ├── aiService.ts           # AI integration
-│   │   │   └── cloudinaryService.ts   # File upload service
-│   │   └── utils/            # Helper functions
-│   ├── package.json          # Backend dependencies
-│   └── tsconfig.json         # TypeScript configuration
-└── README.md                 # Project documentation
-```
 
 ## 🚀 **Quick Start Guide**
 
@@ -242,7 +184,7 @@ npm start
 **Frontend running on:** `http://localhost:3000`
 
 ## 📊 **API Endpoints**
-
+<!-- 
 ### **Authentication**
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
@@ -263,7 +205,7 @@ npm start
 
 ### **Voting**
 - `POST /api/votes/questions/:id` - Vote on question
-- `POST /api/votes/answers/:id` - Vote on answer
+- `POST /api/votes/answers/:id` - Vote on answer -->
 
 **Full API Documentation:** [API_DOCUMENTATION.md](./backend/API_DOCUMENTATION.md)
 
