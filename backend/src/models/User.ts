@@ -4,7 +4,9 @@ import bcrypt from 'bcryptjs';
 export interface IUser extends Document {
   username: string;
   email: string;
-  password: string;
+  password?: string; // Optional for OAuth users
+  firebaseUid?: string; // Firebase UID for OAuth users
+  authProvider: 'local' | 'google' | 'firebase'; // Track auth method
   avatar?: string;
   reputation: number;
   role: 'student' | 'teacher' | 'admin';
@@ -53,9 +55,21 @@ const userSchema = new Schema<IUser>({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: function(this: IUser) {
+      return this.authProvider === 'local';
+    },
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false
+  },
+  firebaseUid: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple null values
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google', 'firebase'],
+    default: 'local'
   },
   avatar: {
     type: String,
@@ -147,7 +161,7 @@ const userSchema = new Schema<IUser>({
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   
   this.password = await bcrypt.hash(this.password, 12);
   next();
@@ -155,6 +169,7 @@ userSchema.pre('save', async function(next) {
 
 // Compare password method
 userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  if (!this.password) return false;
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
