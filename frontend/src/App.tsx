@@ -6,6 +6,7 @@ import Header from './components/Header';
 import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
 import QuestionDetailPage from './pages/QuestionDetailPage';
 import AskQuestionPage from './pages/AskQuestionPage';
 import UserProfilePage from './pages/UserProfilePage';
@@ -23,6 +24,7 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/questions/:id" element={<QuestionDetailPage />} />
                 <Route path="/ask" element={<AskQuestionPage />} />
                 <Route path="/profile" element={<UserProfilePage />} />

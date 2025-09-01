@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { User } from '../types';
 import { authService } from '../services/authService';
+import { firebaseAuthService } from '../services/firebaseAuthService';
 import { updateUserProfile } from '../services/userService';
 
 interface AuthState {
@@ -82,6 +83,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (userData: {
     username: string;
     email: string;
@@ -116,12 +118,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const loadUser = async () => {
       if (state.token) {
         try {
+          // Try to get user from API first (most up-to-date)
           const response = await authService.getProfile();
           dispatch({ type: 'LOAD_USER', payload: response.user });
         } catch (error) {
+          // If API call fails, try to load from localStorage
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            try {
+              const user = JSON.parse(storedUser);
+              dispatch({ type: 'LOAD_USER', payload: user });
+              return;
+            } catch (parseError) {
+              console.error('Error parsing stored user:', parseError);
+            }
+          }
+          // If everything fails, clear auth state
           dispatch({ type: 'LOGIN_FAILURE' });
         }
       } else {
+        // Check if user is stored in localStorage but token is missing
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('token');
+        
+        if (storedToken && storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            dispatch({ 
+              type: 'LOGIN_SUCCESS', 
+              payload: { user, token: storedToken } 
+            });
+            return;
+          } catch (parseError) {
+            console.error('Error parsing stored user:', parseError);
+          }
+        }
+        
         dispatch({ type: 'LOGIN_FAILURE' });
       }
     };
@@ -136,6 +168,49 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: { user: response.user, token: response.token },
+      });
+    } catch (error) {
+      dispatch({ type: 'LOGIN_FAILURE' });
+      throw error;
+    }
+  };
+
+  const loginWithGoogle = async () => {
+    try {
+      dispatch({ type: 'LOGIN_START' });
+      const response = await firebaseAuthService.loginWithGoogle();
+      
+      // Transform the Firebase auth response to match our User type
+      const user = {
+        _id: response.user.id,
+        id: response.user.id,
+        username: response.user.username,
+        email: response.user.email,
+        role: response.user.role as 'student' | 'teacher' | 'admin',
+        reputation: response.user.reputation,
+        avatar: response.user.avatar,
+        createdAt: new Date().toISOString(),
+        savedQuestions: [],
+        savedAnswers: [],
+        activityLog: [],
+        preferences: {
+          emailNotifications: true,
+          categories: [],
+          difficultyLevel: 'beginner'
+        },
+        profile: {
+          bio: '',
+          location: '',
+          website: '',
+          learningGoals: [],
+          nativeLanguage: '',
+          englishLevel: 'beginner' as 'beginner' | 'intermediate' | 'advanced'
+        }
+      };
+      
+      dispatch({
+        type: 'LOGIN_SUCCESS',
+        payload: { user, token: response.token },
       });
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE' });
@@ -193,6 +268,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated: state.isAuthenticated,
     isLoading: state.isLoading,
     login,
+    loginWithGoogle,
     register,
     logout,
     updateUser,
