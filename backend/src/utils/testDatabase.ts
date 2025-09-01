@@ -5,8 +5,16 @@ let mongoServer: MongoMemoryServer;
 
 export const connectTestDB = async () => {
   try {
-    // Start in-memory MongoDB server
-    mongoServer = await MongoMemoryServer.create();
+    // Start in-memory MongoDB server with proper configuration
+    mongoServer = await MongoMemoryServer.create({
+      instance: {
+        port: 27017, // Optional: specify port
+        dbName: 'english-qa-test', // Optional: specify database name
+      },
+      binary: {
+        version: '7.0.14', // Optional: specify MongoDB version
+      },
+    });
     const mongoUri = mongoServer.getUri();
     
     console.log('🚀 Starting in-memory MongoDB for testing...');

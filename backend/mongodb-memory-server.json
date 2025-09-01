@@ -1,0 +1,8 @@
+{
+  "version": "7.0.14",
+  "downloadDir": "./node_modules/.cache/mongodb-memory-server/mongodb-binaries",
+  "platform": "win32",
+  "arch": "x64",
+  "skipMD5": true,
+  "skipDownload": false
+}
