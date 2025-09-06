@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { firebaseAuthService } from '../services/firebaseAuthService';
+// import { firebaseAuthService } from '../services/firebaseAuthService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { 
   EnvelopeIcon, 
