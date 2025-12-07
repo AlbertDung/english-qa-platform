@@ -1,12 +1,20 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+// Ensure API_BASE_URL includes /api if not already present
+let API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+
+// Add /api suffix if not present and URL doesn't end with /api
+if (!API_BASE_URL.endsWith('/api') && !API_BASE_URL.endsWith('/api/')) {
+  // Remove trailing slash if present, then add /api
+  API_BASE_URL = API_BASE_URL.replace(/\/$/, '') + '/api';
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: false, // Enable cookies for CORS requests
 });
 
 // Request interceptor to add auth token

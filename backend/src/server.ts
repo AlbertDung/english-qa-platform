@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 
+
 // Import models to ensure they are registered
 import './models/User';
 import './models/Question';
@@ -29,8 +30,11 @@ import uploadRoutes from './routes/upload';
 import userRoutes from './routes/user';
 import exerciseRoutes from './routes/exercises';
 
-// Connect to database
-connectDB();
+// Connect to database (non-blocking - server will start even if DB connection is pending)
+connectDB().catch((error) => {
+  console.error('Failed to connect to database:', error);
+  // Don't exit - allow server to start, but API endpoints will fail
+});
 
 const app = express();
 
@@ -45,10 +49,54 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// CORS
+// CORS - Allow multiple origins for development and production
+const isProduction = process.env.NODE_ENV === 'production';
+let allowedOrigins: (string | RegExp)[] = [];
+
+if (process.env.CLIENT_URL) {
+  // Use explicitly configured CLIENT_URL (comma-separated for multiple origins)
+  allowedOrigins = process.env.CLIENT_URL.split(',').map(url => url.trim());
+} else if (isProduction) {
+  // In production, CLIENT_URL must be explicitly configured
+  console.error('❌ ERROR: CLIENT_URL environment variable is required in production!');
+  console.error('   Please set CLIENT_URL to your frontend URL(s), e.g., CLIENT_URL=https://yourdomain.com');
+  console.error('   Server will start but CORS will reject all requests until CLIENT_URL is configured.');
+  // Don't exit - allow server to start but CORS will reject requests
+  allowedOrigins = [];
+} else {
+  // Development defaults: only use when CLIENT_URL is not set and not in production
+  allowedOrigins = ['http://localhost:3000'];
+  
+  // Add local network IPs for development (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+  allowedOrigins.push(/^http:\/\/192\.168\.\d+\.\d+:3000$/);
+  allowedOrigins.push(/^http:\/\/10\.\d+\.\d+\.\d+:3000$/);
+  allowedOrigins.push(/^http:\/\/172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+:3000$/);
+}
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed origins
+    const isAllowed = allowedOrigins.some(allowedOrigin => {
+      if (typeof allowedOrigin === 'string') {
+        return origin === allowedOrigin;
+      }
+      if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
 }));
 
 // Body parsing middleware
@@ -78,8 +126,8 @@ app.get('/api/health', (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
+const PORT = parseInt(process.env.PORT || '8080', 10);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });

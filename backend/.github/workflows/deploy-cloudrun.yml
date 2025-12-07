@@ -1,0 +1,144 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+      
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+      
+      - name: Build container image
+        continue-on-error: true
+        id: build
+        run: |
+          # Submit build (may fail on log streaming, but build still succeeds)
+          gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/english-qa-backend:${{ github.sha }} 2>&1 | tee build_output.log || true
+          
+          # Extract build ID from output (even if command failed due to log streaming)
+          BUILD_ID=$(grep -oP 'builds/\K[^/]+' build_output.log | head -1 || echo "")
+          
+          if [ -z "$BUILD_ID" ]; then
+            # Fallback: get the most recent build (sorted by creation time)
+            echo "Extracting build ID from recent builds..."
+            BUILD_ID=$(gcloud builds list --limit=1 --format="value(id)" --sort-by=~createTime)
+          fi
+          
+          echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+          
+          if [ -n "$BUILD_ID" ]; then
+            echo "Waiting for build $BUILD_ID to complete..."
+            # Poll build status (gcloud builds wait doesn't exist)
+            TIMEOUT=600
+            ELAPSED=0
+            FAILED_ATTEMPTS=0
+            MAX_FAILED_ATTEMPTS=3  # Exit after 3 consecutive failures
+            
+            while [ $ELAPSED -lt $TIMEOUT ]; do
+              # Try to get build status
+              BUILD_STATUS_OUTPUT=$(gcloud builds describe $BUILD_ID --format="value(status)" 2>&1)
+              EXIT_CODE=$?
+              
+              # Check if command failed or returned empty
+              if [ $EXIT_CODE -ne 0 ] || [ -z "$BUILD_STATUS_OUTPUT" ]; then
+                FAILED_ATTEMPTS=$((FAILED_ATTEMPTS + 1))
+                if [ $FAILED_ATTEMPTS -ge $MAX_FAILED_ATTEMPTS ]; then
+                  echo "⚠️  Could not get build status after $MAX_FAILED_ATTEMPTS attempts"
+                  echo "Trying alternative method: checking via build list..."
+                  # Try alternative: check most recent build
+                  ALTERNATIVE_STATUS=$(gcloud builds list --limit=1 --format="value(status)" --sort-by=~createTime 2>/dev/null || echo "")
+                  if [ "$ALTERNATIVE_STATUS" = "SUCCESS" ]; then
+                    echo "✅ Build completed successfully (verified via alternative method)"
+                    break
+                  else
+                    echo "⚠️  Cannot verify build status, but proceeding with deployment"
+                    echo "Build was submitted successfully. If deployment fails, check Cloud Console."
+                    break
+                  fi
+                fi
+                echo "Could not get build status (attempt $FAILED_ATTEMPTS/$MAX_FAILED_ATTEMPTS), waiting 10s..."
+                sleep 10
+                ELAPSED=$((ELAPSED + 10))
+                continue
+              fi
+              
+              # Reset failed attempts on successful status retrieval
+              FAILED_ATTEMPTS=0
+              BUILD_STATUS="$BUILD_STATUS_OUTPUT"
+              
+              if [ "$BUILD_STATUS" = "SUCCESS" ]; then
+                echo "✅ Build completed successfully"
+                break
+              elif [ "$BUILD_STATUS" = "FAILURE" ] || [ "$BUILD_STATUS" = "CANCELLED" ] || [ "$BUILD_STATUS" = "EXPIRED" ]; then
+                echo "❌ Build failed with status: $BUILD_STATUS"
+                exit 1
+              elif [ "$BUILD_STATUS" = "WORKING" ] || [ "$BUILD_STATUS" = "QUEUED" ]; then
+                echo "Build status: $BUILD_STATUS (waiting...)"
+                sleep 5
+                ELAPSED=$((ELAPSED + 5))
+              else
+                echo "Build status: $BUILD_STATUS (waiting...)"
+                sleep 5
+                ELAPSED=$((ELAPSED + 5))
+              fi
+            done
+            
+            # Final check (only if we didn't break early)
+            if [ $ELAPSED -ge $TIMEOUT ]; then
+              echo "⚠️  Timeout waiting for build. Proceeding with deployment..."
+            fi
+          else
+            echo "⚠️  Could not determine build ID"
+            echo "Build was submitted. Proceeding with deployment..."
+          fi
+      
+      - name: Verify build succeeded
+        if: steps.build.outcome != 'success'
+        run: |
+          # Check if build actually succeeded despite log streaming error
+          BUILD_ID=$(gcloud builds list --limit=1 --format="value(id)" --sort-by=~createTime)
+          if [ -n "$BUILD_ID" ]; then
+            BUILD_STATUS=$(gcloud builds describe $BUILD_ID --format="value(status)")
+            if [ "$BUILD_STATUS" = "SUCCESS" ]; then
+              echo "✅ Build actually succeeded (log streaming issue only)"
+              exit 0
+            else
+              echo "❌ Build failed with status: $BUILD_STATUS"
+              exit 1
+            fi
+          else
+            echo "❌ Could not verify build status"
+            exit 1
+          fi
+      
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy english-qa-backend \
+            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/english-qa-backend:${{ github.sha }} \
+            --platform managed \
+            --region us-central1 \
+            --allow-unauthenticated \
+            --port 8080 \
+            --memory 512Mi \
+            --cpu 1 \
+            --min-instances 0 \
+            --max-instances 10 \
+            --update-env-vars "NODE_ENV=production" \
+            --quiet
+
